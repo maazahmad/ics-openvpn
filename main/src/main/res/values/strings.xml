@@ -3,7 +3,7 @@
   ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
   -->
 <resources>
-    <string name="app">OpenVPN for Android</string>
+    <string name="app">Prototype Ibvpn</string>
     <string name="address">Server Address:</string>
     <string name="port">Server Port:</string>
     <string name="location">Location</string>
@@ -422,5 +422,18 @@
     <string name="sorted_lru">Profiles sorted by last recently used</string>
     <string name="sorted_az">Profiles sorted by name</string>
     <string name="deprecated_tls_remote">Config uses option tls-remote that was deprecated in 2.3 and finally removed in 2.4</string>
+
+
+    <string name="text_connect">Connect</string>
+    <string name="text_cancel">Cancel</string>
+    <string name="text_disconnect">Disconnect</string>
+    <string name="text_checkip"><a style="color:#FFFFFF" href="http://xmyip.com/#apkibvpn">Check Your IP</a></string>
+    <string name="text_status"></string>
+    <string name="text_location">Location</string>
+    <string name="text_package">Package</string>
+
+
+
+
 
 </resources>

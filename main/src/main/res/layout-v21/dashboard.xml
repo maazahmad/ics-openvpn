@@ -1,0 +1,117 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#187817"
+    android:baselineAligned="false"
+    android:gravity="center|top"
+    android:orientation="vertical"
+    android:paddingBottom="5dp"
+    android:paddingTop="125dp"
+    tools:context=".ActivityDashboard" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:baselineAligned="false"
+        android:gravity="center"
+        android:measureWithLargestChild="false"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="83dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="1dp"
+            android:gravity="center_vertical"
+            android:paddingRight="13dp"
+            android:text="@string/text_package"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Spinner
+            android:id="@+id/spinner_dashboard_package"
+            style="android:spinnerStyle"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="15dp"
+            android:popupBackground="#23282d" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="1dp"
+            android:gravity="center_vertical"
+            android:text="@string/text_location"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Spinner
+            android:id="@+id/spinner_dashboard_location"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="3dp"
+            android:paddingLeft="13dp"
+            android:popupBackground="#23282d" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/view_dashboard_status"
+        android:layout_width="280dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center|bottom"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:onClick="onStatus"
+        android:text="@string/text_status"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/view_dashboard_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:layout_gravity="center|top|bottom"
+        android:gravity="center"
+        android:onClick="onSetting"
+        android:text="@string/text_status"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="2dp" />
+
+    <Button
+        android:id="@+id/button_dashboard_connect"
+        android:layout_width="280dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center|bottom"
+        android:gravity="center"
+        android:onClick="onConnect"
+        android:text="@string/text_connect"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#FFFFFF" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="5dp" />
+
+    <TextView
+        android:id="@+id/textview_checkip"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_gravity="center"
+        android:text="@string/text_checkip"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColorLink="#FFFFFF" />
+
+</LinearLayout>

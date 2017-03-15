@@ -5,6 +5,7 @@
 
 package de.blinkt.openvpn;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -13,9 +14,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.VpnService;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -38,23 +41,46 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import de.blinkt.openvpn.activities.LogWindow;
+import de.blinkt.openvpn.core.ConfigParser;
+import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.Preferences;
+import de.blinkt.openvpn.core.VpnStatus;
 
 //import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
 public class ActivityDashboard extends Activity {
     public static final int AlertDialogExitNotify = 0x90001;
     public static final int NetDisconnectedNotify = 0x90002;
-    
+
+    private Context m_context;
+    public String extra;
+    private String m_server;
+    private  String m_port;
+    private String m_extra;
+    private String m_proto;
+    private String m_session;
+
+    private VpnProfile m_vpnprofile;
+
+    private boolean mCmfixed = false;
+
+
+
+    private String m_inlineConfig;
+
+
     enum Status {
         Connecting,
         Connected,
@@ -196,7 +222,7 @@ public class ActivityDashboard extends Activity {
     protected void onStop() {
         super.onStop();
     }
-    
+
     @Override
     public void onPause() {
         Log.i("ibVPN", "onPause dashboard.");
@@ -339,14 +365,14 @@ public class ActivityDashboard extends Activity {
         	toast.show();
             
             Button button = (Button)findViewById(R.id.button_dashboard_connect);
-//            if(button.getText().toString().equalsIgnoreCase(getString(R.string.text_cancel))) {
+            if(button.getText().toString().equalsIgnoreCase(getString(R.string.text_cancel))) {
 //                m_openvpn.cancel();
-//                setStatus(Status.Disconnected);
-//            } else
-//            if(button.getText().toString().equalsIgnoreCase(getString(R.string.text_disconnect))) {
+                setStatus(Status.Disconnected);
+            } else
+            if(button.getText().toString().equalsIgnoreCase(getString(R.string.text_disconnect))) {
 //                m_openvpn.disconnect();
-//                setStatus(Status.Disconnected);
-//            }
+                setStatus(Status.Disconnected);
+            }
             break; }
         
         default: {
@@ -374,6 +400,23 @@ public class ActivityDashboard extends Activity {
             // connecting to server.
             String port = getProperty("PORT");
             String proto = getProperty("PROTOCOL");
+
+            setLogin(m_username, m_password);
+            setRemote(server, port == null ? "1195" : port);
+            setSession(session);
+            setProtocol(proto == null ? "udp" : proto);
+//            m_openvpn.connect();    // start the service, but it is not connected.
+
+            updateOvpnConfigFromAssets(m_server, m_port, m_proto, m_extra);
+
+            Log.d("TADA" ,  createVPNProfile().toString());
+            m_vpnprofile = createVPNProfile();
+
+
+
+
+
+
 //TODO Seting login and user pass for opnvpn and start open vpn
 //            m_openvpn.setLogin(m_username, m_password);
 //            m_openvpn.setRemote(server, port == null ? "1195" : port);
@@ -712,5 +755,100 @@ public class ActivityDashboard extends Activity {
             System.out.println(e);
         }
         return value;
+    }
+
+
+    //FIXME orignal function needs to be modified
+
+    public void setLogin(String name, String pass) {
+        m_username = name;
+        m_password = pass;
+    }
+
+    public void setRemote(String remote, String port) {
+        m_server = remote;
+        m_port = port;
+    }
+
+    public void setProtocol(String proto) {
+        m_proto = proto;
+        if (proto.equalsIgnoreCase("udp"))
+            m_extra = "fragment 1300\n";
+        else
+            m_extra = "";
+    }
+
+    public void setSession(String session) {
+        m_session = session;
+    }
+
+    private boolean updateOvpnConfigFromAssets(String ip, String port,
+                                               String proto, String extra) {
+        Log.d("ibVPN", "make ovpn config file now.\n");
+        try {
+            byte buf[] = new byte[0x8000]; // max 32KB
+            InputStream in = getApplicationContext().getAssets().open("config.module");
+            int size = in.read(buf);
+
+            String ovpn = new String(buf, 0, size, "UTF-8");
+            ovpn = ovpn.replace("#REMOTE_ADDRESS#", ip);
+            ovpn = ovpn.replace("#REMOTE_PORT#", port);
+            ovpn = ovpn.replace("#CA_PATH#", getApplicationContext().getFilesDir()
+                    + "/ca.crt");
+            ovpn = ovpn
+                    .replace("#PROTOCOL#", proto.toLowerCase(Locale.ENGLISH));
+
+
+            //// FIXME: PUT ORIGNAL CODE FOR EXTRA
+           ovpn = ovpn.replace("#EXTRA_CONFIG#", extra);
+            Log.d("total  ovpn string", ovpn);
+            // add management config.
+            String attach = "";
+            attach += "management " + getApplicationContext().getCacheDir().toString()
+                    + "/socket unix\n";
+            attach += "management-query-passwords\n";
+            attach += "management-client\n";
+            attach += "management-hold\n";
+            attach += "\n";
+
+            File fp = new File(getApplicationContext().getFilesDir(), "config");
+            fp.delete();
+
+            FileOutputStream out = new FileOutputStream(fp);
+            String total = attach + ovpn;
+            Log.d("total", total);
+            m_inlineConfig = total;
+            out.write(total.getBytes());
+            out.close();
+
+
+        } catch (Exception e) {
+            System.out.println(e);
+
+            return false;
+        }
+
+        return true;
+    }
+    private VpnProfile createVPNProfile() {
+        try {
+            ConfigParser cp = new ConfigParser();
+
+//            VpnConfigGenerator vpn_configuration_generator = new VpnConfigGenerator(general_configuration, secrets, gateway);
+//            String configuration = vpn_configuration_generator.generate();
+
+            cp.parseConfig(new StringReader(m_inlineConfig));
+
+            return cp.convertProfile();
+        } catch (ConfigParser.ConfigParseError e) {
+            Log.d("Exception ", "We didn't get a VpnProfile");
+            // FIXME We didn't get a VpnProfile!  Error handling! and log level
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            // FIXME We didn't get a VpnProfile!  Error handling! and log level
+            e.printStackTrace();
+            return null;
+        }
     }
 }

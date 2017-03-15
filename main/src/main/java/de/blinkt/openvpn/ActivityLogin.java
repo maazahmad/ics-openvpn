@@ -8,6 +8,7 @@ package de.blinkt.openvpn;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -365,10 +366,10 @@ public class ActivityLogin extends Activity {
 
         Toast.makeText(getApplicationContext(),"Going to Dashboard",Toast.LENGTH_LONG);
         
-        /*Intent intent = new Intent(this, ActivityDashboard.class);
+        Intent intent = new Intent(this, ActivityDashboard.class);
         intent.putExtra("userid", userid);
         intent.putExtra("username", editUsername.getText().toString());
         intent.putExtra("password", editPassword.getText().toString());
-        startActivity(intent);*/
+        startActivity(intent);
     }
 }

@@ -38,6 +38,11 @@
             android:name=".activities.VPNPreferences"
             android:exported="false"
             android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
+            android:name="de.blinkt.openvpn.ActivityDashboard" />
+
 
         <activity
             android:name=".activities.DisconnectVPN"
