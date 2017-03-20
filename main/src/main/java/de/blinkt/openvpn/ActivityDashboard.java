@@ -17,20 +17,24 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.VpnService;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4n.view.ViewPager;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,18 +55,44 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import de.blinkt.openvpn.activities.BaseActivity;
+import de.blinkt.openvpn.activities.FileSelect;
 import de.blinkt.openvpn.activities.LogWindow;
+import de.blinkt.openvpn.activities.MainActivity;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.ConnectionStatus;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.Preferences;
+import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
+import de.blinkt.openvpn.fragments.VPNProfileList;
+import de.blinkt.openvpn.views.ScreenSlidePagerAdapter;
 
 //import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
-public class ActivityDashboard extends Activity {
+public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateListener {
     public static final int AlertDialogExitNotify = 0x90001;
     public static final int NetDisconnectedNotify = 0x90002;
+
+
+
+    public final static int RESULT_VPN_DELETED = Activity.RESULT_FIRST_USER;
+    public final static int RESULT_VPN_DUPLICATE = Activity.RESULT_FIRST_USER + 1;
+
+    private static final int MENU_ADD_PROFILE = Menu.FIRST;
+
+    private static final int START_VPN_CONFIG = 92;
+    private static final int SELECT_PROFILE = 43;
+    private static final int IMPORT_PROFILE = 231;
+    private static final int FILE_PICKER_RESULT_KITKAT = 392;
+
+    private static final int MENU_IMPORT_PROFILE = Menu.FIRST + 1;
+    private static final int MENU_CHANGE_SORTING = Menu.FIRST + 2;
+    private static final String PREF_SORT_BY_LRU = "sortProfilesByLRU";
+//    private String mLastStatusMessage;
+
+
+
 
     private Context m_context;
     public String extra;
@@ -72,13 +102,42 @@ public class ActivityDashboard extends Activity {
     private String m_proto;
     private String m_session;
 
-    private VpnProfile m_vpnprofile;
+    private ScreenSlidePagerAdapter mPagerAdapter;
+
+    public VpnProfile m_vpnprofile;
+    private ProfileManager m_manager;
+    private ViewPager mPager;
+
 
     private boolean mCmfixed = false;
 
 
 
     private String m_inlineConfig;
+    private String mLastStatusMessage;
+
+
+
+    //added <code></code>
+
+
+    @Override
+    public void updateState(String state, String logmessage, final int localizedResId, ConnectionStatus level) {
+        ActivityDashboard.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("whooo","bitch is running");
+                mLastStatusMessage = VpnStatus.getLastCleanLogMessage(getParent());
+//                mArrayadapter.notifyDataSetChanged();
+            }
+        });
+    }
+    @Override
+    public void setConnectedVPN(String uuid) {
+    }
+
+
+    // added code
 
 
     enum Status {
@@ -149,14 +208,21 @@ public class ActivityDashboard extends Activity {
     }
     
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(android.os.Bundle savedInstanceState) {
         Log.i("ibVPN", "onCreate dashboard.");
         super.onCreate(savedInstanceState);
-        
+        setContentView(R.layout.mydash);
+        m_manager=ProfileManager.getInstance(this);
+
         // set theme by code, this will improve the speed.
 //        setTheme(R.style.App_Theme);
-        setContentView(R.layout.dashboard);
-        
+//        mPager = (ViewPager) findViewById(R.id.pager);
+
+//        mPagerAdapter = new ScreenSlidePagerAdapter(getFragmentManager(), this);
+//        mPagerAdapter.addTab(R.string.vpn_list_title, VPNProfileList.class);
+//        mPager.setAdapter(mPagerAdapter);
+
+
         // new the handler here, so it will not leak.
         if(m_handler == null)
             m_handler = new ExtendHandler(this);
@@ -173,6 +239,8 @@ public class ActivityDashboard extends Activity {
         m_password = intent.getStringExtra("password");
         m_userid = intent.getStringExtra("userid");
 
+
+
         // delete the vpn log.
         File file = new File(getCacheDir(), "vpnlog.txt");
         if(file.exists())
@@ -183,13 +251,13 @@ public class ActivityDashboard extends Activity {
         m_waitdlg = ProgressDialog.show(this, "Loading Servers", "Waiting for server reply...", true, false);
         
         // make text view link valid.
-        TextView view1 = (TextView)findViewById(R.id.textview_checkip);
-        view1.setMovementMethod(LinkMovementMethod.getInstance());
+//        TextView view1 = (TextView)findViewById(R.id.textview_checkip);
+//        view1.setMovementMethod(LinkMovementMethod.getInstance());
         TextView view2 = (TextView)findViewById(R.id.view_dashboard_status);
         view2.setMovementMethod(LinkMovementMethod.getInstance());
-        TextView view3 = (TextView)findViewById(R.id.view_dashboard_setting);
-        view3.setMovementMethod(LinkMovementMethod.getInstance());
-        view3.setText(Html.fromHtml("<font color=#FFFFFF>Advanced Settings</font><b>  &gt;&gt;&gt;</b>"));
+//        TextView view3 = (TextView)findViewById(R.id.view_dashboard_setting);
+//        view3.setMovementMethod(LinkMovementMethod.getInstance());
+//        view3.setText(Html.fromHtml("<font color=#FFFFFF>Advanced Settings</font><b>  &gt;&gt;&gt;</b>"));
         
         // start internet checker timer, will not stop this.
         m_timer.schedule(new NetStateCheckTask(this), 3000, 3000);
@@ -380,63 +448,112 @@ public class ActivityDashboard extends Activity {
             break; }
         }
     }
-    
-    protected void onActivityResult(int code, int result, Intent data) {
 
-        if(result == Activity.RESULT_OK) {
-            String server = getCurrentServer();
-            if(server.isEmpty()) {
-                Toast toast = Toast.makeText(this, "Get server failed.", Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-            	toast.show();
-                setStatus(Status.Disconnected);
-                return;
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+//        if (resultCode == RESULT_VPN_DELETED) {
+//            if (mArrayadapter != null && mEditProfile != null)
+//                mArrayadapter.remove(mEditProfile);
+//        } else if (resultCode == RESULT_VPN_DUPLICATE && data != null) {
+//            String profileUUID = data.getStringExtra(VpnProfile.EXTRA_PROFILEUUID);
+//            VpnProfile profile = ProfileManager.get(getActivity(), profileUUID);
+//            if (profile != null)
+//                onAddOrDuplicateProfile(profile);
+//        }
+
+
+        if (resultCode != Activity.RESULT_OK)
+            return;
+
+
+        if (requestCode == START_VPN_CONFIG) {
+            String configuredVPN = data.getStringExtra(VpnProfile.EXTRA_PROFILEUUID);
+
+            VpnProfile profile = ProfileManager.get(this, configuredVPN);
+            m_manager.saveProfile(this, profile);
+            // Name could be modified, reset List adapter
+//            setListAdapter();
+
+        } else if (requestCode == SELECT_PROFILE) {
+            String fileData = data.getStringExtra(FileSelect.RESULT_DATA);
+            Uri uri = new Uri.Builder().path(fileData).scheme("file").build();
+
+//            startConfigImport(uri);
+        } else if (requestCode == IMPORT_PROFILE) {
+            String profileUUID = data.getStringExtra(VpnProfile.EXTRA_PROFILEUUID);
+//            mArrayadapter.add(ProfileManager.get(getActivity(), profileUUID));
+        } else if (requestCode == FILE_PICKER_RESULT_KITKAT) {
+            if (data != null) {
+                Uri uri = data.getData();
+//                startConfigImport(uri);
             }
-                
-            // get session name.
-            Spinner spinServer = (Spinner)findViewById(R.id.spinner_dashboard_location);
-            String session = spinServer.getSelectedItem().toString();
-
-            // connecting to server.
-            String port = getProperty("PORT");
-            String proto = getProperty("PROTOCOL");
-
-            setLogin(m_username, m_password);
-            setRemote(server, port == null ? "1195" : port);
-            setSession(session);
-            setProtocol(proto == null ? "udp" : proto);
-//            m_openvpn.connect();    // start the service, but it is not connected.
-
-            updateOvpnConfigFromAssets(m_server, m_port, m_proto, m_extra);
-
-            Log.d("TADA" ,  createVPNProfile().toString());
-            m_vpnprofile = createVPNProfile();
-
-
-
-
-
-
-//TODO Seting login and user pass for opnvpn and start open vpn
-//            m_openvpn.setLogin(m_username, m_password);
-//            m_openvpn.setRemote(server, port == null ? "1195" : port);
-//            m_openvpn.setSession(session);
-//            m_openvpn.setProtocol(proto == null ? "udp" : proto);
-//            m_openvpn.connect();    // start the service, but it is not connected.
-
-            JSONObject props = new JSONObject();
-            mixpanelAdd(props, "Selected Plan", getCurrentPackage());
-            mixpanelAdd(props, "Location", getCurrentServerName());
-            mixpanelAdd(props, "Other Available Plans", getValidPackages());
-            //mixpanelTrack("Connect", props);
-
-            Log.d("ibVPN", "props: " + props);
-        } else 
-        if (result == Activity.RESULT_CANCELED) {
-            // end this process if user deny.
-            finish();
         }
+
     }
+
+
+//    protected void onActivityResult(int code, int result, Intent data) {
+//
+//        if(result == Activity.RESULT_OK) {
+//            String server = getCurrentServer();
+//            if(server.isEmpty()) {
+//                Toast toast = Toast.makeText(this, "Get server failed.", Toast.LENGTH_LONG);
+//                toast.setGravity(Gravity.CENTER, 0, 0);
+//            	toast.show();
+//                setStatus(Status.Disconnected);
+//                return;
+//            }
+//
+//            // get session name.
+//            Spinner spinServer = (Spinner)findViewById(R.id.spinner_dashboard_location);
+//            String session = spinServer.getSelectedItem().toString();
+//
+//            // connecting to server.
+//            String port = getProperty("PORT");
+//            String proto = getProperty("PROTOCOL");
+//
+//            setLogin(m_username, m_password);
+//            setRemote(server, port == null ? "1195" : port);
+//            setSession(session);
+//            setProtocol(proto == null ? "udp" : proto);
+////            m_openvpn.connect();    // start the service, but it is not connected.
+//
+//            updateOvpnConfigFromAssets(m_server, m_port, m_proto, m_extra);
+//
+////            Log.d("TADA" ,  createVPNProfile().toString());
+//            m_vpnprofile = createVPNProfile();
+//            m_vpnprofile.mUsername = m_username;
+//            m_vpnprofile.mPassword = m_password;
+//            startVPN(m_vpnprofile);
+//
+//
+//
+//
+//
+//
+////TODO Seting login and user pass for opnvpn and start open vpn
+////            m_openvpn.setLogin(m_username, m_password);
+////            m_openvpn.setRemote(server, port == null ? "1195" : port);
+////            m_openvpn.setSession(session);
+////            m_openvpn.setProtocol(proto == null ? "udp" : proto);
+////            m_openvpn.connect();    // start the service, but it is not connected.
+//
+//            JSONObject props = new JSONObject();
+//            mixpanelAdd(props, "Selected Plan", getCurrentPackage());
+//            mixpanelAdd(props, "Location", getCurrentServerName());
+//            mixpanelAdd(props, "Other Available Plans", getValidPackages());
+//            //mixpanelTrack("Connect", props);
+//
+////            Log.d("ibVPN", "props: " + props);
+//        } else
+//        if (result == Activity.RESULT_CANCELED) {
+//            // end this process if user deny.
+//            finish();
+//        }
+//    }
     
     public boolean permissionConnect() {
         // delete the vpn log.
@@ -520,7 +637,38 @@ public class ActivityDashboard extends Activity {
         if(((Button)v).getText().toString().equalsIgnoreCase(getString(R.string.text_connect))) {
             setStatus(Status.Connecting);
 //            m_openvpn = new OpenVPN(m_handler, this);    // new it here, so cancel will not crash.
-            permissionConnect();
+            String server = getCurrentServer();
+            // get session name.
+            Spinner spinServer = (Spinner)findViewById(R.id.spinner_dashboard_location);
+            String session = spinServer.getSelectedItem().toString();
+
+            // connecting to server.
+            String port = getProperty("PORT");
+            String proto = getProperty("PROTOCOL");
+
+            setLogin(m_username, m_password);
+            setRemote(server, port == null ? "1195" : port);
+            setSession(session);
+            setProtocol(proto == null ? "udp" : proto);
+
+//            m_openvpn.connect();    // start the service, but it is not connected.
+
+
+            updateOvpnConfigFromAssets(m_server, m_port, m_proto, m_extra);
+
+//            Log.d("TADA" ,  createVPNProfile().toString());
+            m_vpnprofile = createVPNProfile();
+            m_vpnprofile.mUsername = m_username;
+            m_vpnprofile.mPassword = m_password;
+            m_manager.addProfile(m_vpnprofile);
+            m_manager.saveProfile(this,m_vpnprofile);
+            m_manager.saveProfileList(this);
+
+//            gotoMainActivity();
+            startVPN(m_vpnprofile);
+
+
+//            permissionConnect();
             m_date = System.currentTimeMillis();
         } else
         if(((Button)v).getText().toString().equalsIgnoreCase(getString(R.string.text_cancel))) {
@@ -545,7 +693,7 @@ public class ActivityDashboard extends Activity {
                 Log.d( "d" , "get files directory : " + getFilesDir().toString());
                 Properties xml = new Properties();
                 xml.loadFromXML(fi);
-                
+
                 String first_login = xml.getProperty("FIRST_LOGIN");
                 String first_conn = xml.getProperty("FIRST_CONNECTED");
                 if(first_conn == null) {
@@ -557,7 +705,7 @@ public class ActivityDashboard extends Activity {
                     JSONObject json = new JSONObject();
                     mixpanelAdd(json, "First Login Time", first_login);
                     mixpanelAdd(json, "First Connected Time", first_conn);
-                    mixpanelAdd(json, "Accomodation Time", 
+                    mixpanelAdd(json, "Accomodation Time",
                         String.valueOf(Long.parseLong(first_conn) - Long.parseLong(first_login)));
                     //mixpanelTrack("Application 1st Time Connected", json);
                     Log.d("ibVPN", "props: " + json);
@@ -816,7 +964,7 @@ public class ActivityDashboard extends Activity {
 
             FileOutputStream out = new FileOutputStream(fp);
             String total = attach + ovpn;
-            Log.d("total", total);
+//            Log.d("total", total);
             m_inlineConfig = total;
             out.write(total.getBytes());
             out.close();
@@ -850,5 +998,26 @@ public class ActivityDashboard extends Activity {
             e.printStackTrace();
             return null;
         }
+    }
+    private void startVPN(VpnProfile profile) {
+        //Profile Manger saves profile
+
+        Intent intent = new Intent(this,LaunchVPN.class);
+        intent.putExtra(LaunchVPN.EXTRA_KEY, profile.getUUID().toString());
+        Log.d("extra",LaunchVPN.EXTRA_KEY + "profile UUID    " +profile.getUUID().toString());
+        intent.setAction(Intent.ACTION_MAIN);
+        startActivity(intent);
+    }
+    public void gotoMainActivity() {
+//        EditText editUsername, editPassword;
+//        editUsername = (EditText)findViewById(R.id.edit_login_email);
+//        editPassword = (EditText)findViewById(R.id.edit_login_password);
+
+
+        Toast.makeText(getApplicationContext(),"Going to Main Activity",Toast.LENGTH_LONG);
+
+        Intent intent = new Intent(this, MainActivity.class);
+//
+        startActivity(intent);
     }
 }

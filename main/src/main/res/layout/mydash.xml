@@ -1,10 +1,7 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="#187817"
     android:baselineAligned="false"
     android:gravity="center|top"
@@ -12,19 +9,10 @@
     android:paddingBottom="5dp"
     android:paddingTop="125dp"
     tools:context=".ActivityDashboard" >
-        <!--<LinearLayout-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="400dp"-->
-            <!--android:orientation="vertical">-->
-            <!--<include layout="@layout/tabs" />-->
-            <!--<android.support.v4n.view.ViewPager-->
-                <!--android:id="@+id/pager"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent" />-->
-        <!--</LinearLayout>-->
-        <LinearLayout
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="match_parent"
         android:baselineAligned="false"
         android:gravity="center"
         android:measureWithLargestChild="false"
@@ -88,19 +76,19 @@
         android:text="@string/text_status"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <!--<TextView-->
-        <!--android:id="@+id/view_dashboard_setting"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="80dp"-->
-        <!--android:layout_gravity="center|top|bottom"-->
-        <!--android:gravity="center"-->
-        <!--android:onClick="onSetting"-->
-        <!--android:text="@string/text_status"-->
-        <!--android:textAppearance="?android:attr/textAppearanceSmall" />-->
+    <TextView
+        android:id="@+id/view_dashboard_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:layout_gravity="center|top|bottom"
+        android:gravity="center"
+        android:onClick="onSetting"
+        android:text="@string/text_status"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
-    <!--<Space-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="2dp" />-->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="2dp" />
 
     <Button
         android:id="@+id/button_dashboard_connect"
@@ -113,18 +101,17 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="#FFFFFF" />
 
-    <!--<Space-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="5dp" />-->
-    <!--<TextView-->
-        <!--android:id="@+id/textview_checkip"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="20dp"-->
-        <!--android:layout_gravity="center"-->
-        <!--android:text="@string/text_checkip"-->
-        <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
-        <!--android:textColorLink="#FFFFFF" />-->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="5dp" />
 
+    <TextView
+        android:id="@+id/textview_checkip"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_gravity="center"
+        android:text="@string/text_checkip"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColorLink="#FFFFFF" />
 
 </LinearLayout>
-</ScrollView>
