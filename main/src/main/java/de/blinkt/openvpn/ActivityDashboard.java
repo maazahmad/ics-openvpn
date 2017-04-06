@@ -218,11 +218,6 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 //        setTheme(R.style.App_Theme);
 //        mPager = (ViewPager) findViewById(R.id.pager);
 
-//        mPagerAdapter = new ScreenSlidePagerAdapter(getFragmentManager(), this);
-//        mPagerAdapter.addTab(R.string.vpn_list_title, VPNProfileList.class);
-//        mPager.setAdapter(mPagerAdapter);
-
-
         // new the handler here, so it will not leak.
         if(m_handler == null)
             m_handler = new ExtendHandler(this);
@@ -239,14 +234,13 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         m_password = intent.getStringExtra("password");
         m_userid = intent.getStringExtra("userid");
 
-
-
         // delete the vpn log.
         File file = new File(getCacheDir(), "vpnlog.txt");
         if(file.exists())
             file.delete();
-        
+        //TODO fix On Register
         // get package and server name.
+        Log.d("m_password" , m_password);
         m_remote.getUserService(m_userid, m_password);
         m_waitdlg = ProgressDialog.show(this, "Loading Servers", "Waiting for server reply...", true, false);
         
@@ -467,7 +461,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 
         if (resultCode != Activity.RESULT_OK)
             return;
-
+        Log.d("onactivityresult",data.toString());
 
         if (requestCode == START_VPN_CONFIG) {
             String configuredVPN = data.getStringExtra(VpnProfile.EXTRA_PROFILEUUID);

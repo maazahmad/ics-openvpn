@@ -123,7 +123,7 @@ public class ActivityLogin extends Activity {
         super.onCreate(savedInstanceState);
         
         // set theme by code, this will improve the speed.
-//        setTheme(R.style.);
+        setTheme(R.style.App_Theme);
         setContentView(R.layout.login);
 
         Log.i("i", "i");
@@ -143,7 +143,10 @@ public class ActivityLogin extends Activity {
         // make text view link valid.
         TextView textView = (TextView)findViewById(R.id.textview_forgetpass);
         textView.setMovementMethod(LinkMovementMethod.getInstance());
-        
+        TextView textView1 = (TextView)findViewById(R.id.textview_register);
+        textView1.setMovementMethod(LinkMovementMethod.getInstance());
+
+
         // load saved login from file.
         File file = new File(getCacheDir() + "/login");
         if(file.exists() && file.length() == 0)
@@ -356,6 +359,10 @@ public class ActivityLogin extends Activity {
             Log.d("ibVPN", "Message From Unknown Thread. :)");
             break; }
         }
+    }
+    public void  register (View V) {
+        Intent intent = new Intent(this, ActivityRegister.class);
+        startActivity(intent);
     }
     
     public void gotoDashboard(String userid) {

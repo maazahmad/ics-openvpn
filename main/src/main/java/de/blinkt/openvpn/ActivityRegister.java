@@ -61,7 +61,7 @@ public class ActivityRegister extends Activity {
         
         
         // set theme by code, this will improve the speed.
-//        setTheme(R.style.App_Theme);
+        setTheme(R.style.blinkt_lolTheme);
         setContentView(R.layout.register);
         
         // new the handler here, so it will not leak.
@@ -197,6 +197,8 @@ private static Account getAccount(AccountManager accountManager) {
                 		return;
                 	}
                     Log.d("ibVPN", "first time register failed, try again...");
+                    Log.d("retun message" , message);
+
                     // can not connect to server, use login2.
                     EditText editEmail, editPass;
                     editEmail = (EditText)findViewById(R.id.edit_register_email);
@@ -256,6 +258,7 @@ private static Account getAccount(AccountManager accountManager) {
         intent.putExtra("userid", userid);
         intent.putExtra("username", editUsername.getText().toString());
         intent.putExtra("password", editPassword.getText().toString());
+        Log.d("password",editPassword.getText().toString());
         startActivity(intent);
     }
 }
