@@ -12,10 +12,17 @@
     <color name="accent">#FFA726</color>       <!-- Orange 400 -->
     <color name="gelb">#ffff00</color>
     <color name="rot">#ff0000</color>
-
     <color name="switchbar">@android:color/darker_gray</color>
-
-
     <color name="background_tab_pressed">#1AFFFFFF</color>
+
+
+
+    <color name="background">#F7F5F6</color>
+    <color name="button">#262f39</color>
+    <color name="red">#FD0037</color>
+    <color name="green">#1b9e1c</color>
+
+
+
 
 </resources>

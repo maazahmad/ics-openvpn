@@ -94,6 +94,23 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 
 
 
+    private static ExtendHandler     m_handler;            // static handler to deal message.
+    //    private OpenVPN                  m_openvpn;            // handle for openvpn.
+    private RemoteAPI                m_remote;
+
+    private Status                   m_status;            // status of current connection.
+    private String m_username;
+    private String m_password;
+    private String m_userid;
+    private ProgressDialog m_waitdlg;
+    private String m_package;
+    private Timer m_timer;
+    private long                     m_date;
+
+
+
+
+
     private Context m_context;
     public String extra;
     private String m_server;
@@ -180,19 +197,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         mixpanel.track(name, props);
     }*/
 
-    private static ExtendHandler     m_handler;            // static handler to deal message.
-//    private OpenVPN                  m_openvpn;            // handle for openvpn.
-    private RemoteAPI                m_remote;
 
-    private Status                   m_status;            // status of current connection.
-    private String m_username;
-    private String m_password;
-    private String m_userid;
-    private ProgressDialog m_waitdlg;
-    private String m_package;
-    private Timer m_timer;
-    private long                     m_date;
-    
     private class NetStateCheckTask extends TimerTask {
         private Context m_context;
         
@@ -461,7 +466,6 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 
         if (resultCode != Activity.RESULT_OK)
             return;
-        Log.d("onactivityresult",data.toString());
 
         if (requestCode == START_VPN_CONFIG) {
             String configuredVPN = data.getStringExtra(VpnProfile.EXTRA_PROFILEUUID);
@@ -821,8 +825,8 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         if(data.length() <= 0) {
             // show order page
             //TODO check new order
-//            Intent intent = new Intent(this, ActivityNewOrder.class);
-//            startActivity(intent);
+            Intent intent = new Intent(this, ActivityLogin.class);
+            startActivity(intent);
             // now we must close dashboard, and only show the order page.
             finish();
             return;     // end, this page is useless now.

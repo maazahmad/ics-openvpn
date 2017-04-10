@@ -111,7 +111,7 @@ public class ActivityLogin extends Activity {
     	Account[] accounts = accountManager.getAccountsByType("com.google");
     	Account account;
     	if (accounts.length > 0) {
-    		account = accounts[0];      
+    		account = a ccounts[0];
     	} else {
     		account = null;
     	}
@@ -123,7 +123,7 @@ public class ActivityLogin extends Activity {
         super.onCreate(savedInstanceState);
         
         // set theme by code, this will improve the speed.
-        setTheme(R.style.App_Theme);
+        setTheme(R.style.blinkt_lolTheme);
         setContentView(R.layout.login);
 
         Log.i("i", "i");
