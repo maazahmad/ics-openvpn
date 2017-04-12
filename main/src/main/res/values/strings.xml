@@ -433,11 +433,14 @@
     <string name="text_package">Package</string>
     <string name="text_login">Login</string>
     <string name="text_register">Register</string>
+    <string name="text_register_button">Create Free Trail</string>
     <string name="text_version">Version: 0.0.1</string>
-    <string name="text_register_1">Please provide the following info in order to create your free VPN account:</string>
+    <string name="text_register_1">START A 6-HOUR FREE TRIAL</string>
+    <string name="text_register_2">BY CREATING AN ACCOUNT, \n YOU ARE AGREEING TO OUR TERMS OF SERVICE</string>
+    <string name="text_register_3">Terms of Service</string>
     <string name="text_email">Email</string>
-    <string name="text_accountpass">Account\nPassword</string>
-    <string name="text_retype">Re-Type</string>
+    <string name="text_password">Password</string>
+    <string name="text_confirm">Confirm</string>
 
 
 
