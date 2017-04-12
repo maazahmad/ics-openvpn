@@ -5,13 +5,11 @@
   -->
 
 <resources>
-
     <style name="blinkt.lolTheme" parent="android:Theme.Material.Light">
         <!--<item name="android:windowBackground">@drawable/image_map</item>-->
         <!--<item name="android:windowNoTitle">true</item>-->
         <!--<item name="android:itemBackground">@drawable/image_map</item>-->
         <!--<item name="android:textViewStyle">-->
-
     </style>
 
 

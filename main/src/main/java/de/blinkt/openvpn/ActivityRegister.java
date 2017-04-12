@@ -14,11 +14,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.regex.Matcher;
@@ -80,6 +82,8 @@ public class ActivityRegister extends Activity {
             view1.setVisibility(View.GONE);
             view2.setVisibility(View.GONE);
         }*/
+        TextView textView = (TextView)findViewById(R.id.textView_Register3);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
         
         EditText editEmail = (EditText)findViewById(R.id.edit_register_email);
         editEmail.setText(getEmail(this));

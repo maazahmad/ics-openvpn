@@ -4,39 +4,50 @@
   ~ Distributed under the GNU GPL v2 with additional terms. For full terms see the file doc/LICENSE.txt
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/image_map"
+    android:background="@color/background"
     android:orientation="vertical" >
-    <!--android:background="@drawable/back"-->
-    <!--<ImageView-->
-        <!--android:layout_width="350dp"-->
-        <!--android:layout_height="50dp"-->
-        <!--android:layout_gravity="center_horizontal">-->
-    <!--</ImageView>-->
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="350dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/image_map" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="30dp"
+        android:orientation="vertical">
+        <ImageView
+            android:layout_width="350dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:src="@drawable/logo_big" />
+    </LinearLayout>
     <TextView
         android:id="@+id/textView_Register1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="100dp"
-        android:gravity="center"
+        android:layout_marginLeft="40dp"
+        android:layout_marginBottom="10dp"
+        android:layout_above="@id/email_pass_layout"
         android:text="@string/text_register_1"
         android:textSize="20sp"
         android:textStyle="bold"/>
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="10dp" />
+
     <LinearLayout
-        android:background="@drawable/border_background"
-        android:layout_gravity="center_vertical"
-        android:layout_width="match_parent"
+        android:id="@+id/email_pass_layout"
         android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
+        android:background="@drawable/border_background"
         android:orientation="vertical">
         <LinearLayout
             android:layout_width="fill_parent"
@@ -47,141 +58,150 @@
                 android:layout_height="40dp"
                 android:layout_marginLeft="2dp"
                 android:layout_marginRight="2dp"
+                android:paddingLeft="20dp"
                 android:layout_marginTop="1dp"
                 android:gravity="center_vertical"
                 android:background="@color/background"
-                android:text="Eneter Your Account Infromation:"
+                android:text="@string/text_acc_info"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
         </LinearLayout>
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="35dp"
+        android:layout_height="30dp"
         android:orientation="horizontal" >
-        
+
         <TextView
             android:layout_width="100dp"
-            android:layout_height="35dp"
+            android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginLeft="20dp"
             android:gravity="center_vertical"
             android:text="@string/text_email"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-   
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <EditText
             android:id="@+id/edit_register_email"
             android:layout_width="fill_parent"
-            android:layout_height="35dp"
+            android:layout_height="30dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="25dp"
             android:gravity="center_vertical"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:background="@drawable/border_edit_text"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:inputType="textEmailAddress" >
             <requestFocus />
         </EditText>
-        
+
     </LinearLayout>
-    
+
     <Space
         android:layout_width="match_parent"
-        android:layout_height="2dp" />
-    
+        android:layout_height="10dp" />
+
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="35dp"
+        android:layout_height="30dp"
         android:orientation="horizontal" >
-        
+
         <TextView
             android:layout_width="100dp"
-            android:layout_height="35dp"
+            android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginLeft="20dp"
             android:gravity="center_vertical"
             android:text="@string/password"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
             android:id="@+id/edit_register_account_password"
             android:layout_width="fill_parent"
-            android:layout_height="35dp"
+            android:layout_height="30dp"
+            android:paddingLeft="5dp"
+
             android:layout_marginLeft="10dp"
             android:layout_marginRight="25dp"
             android:gravity="center_vertical"
             android:inputType="textPassword"
+            android:background="@drawable/border_edit_text"
+
             android:textAppearance="?android:attr/textAppearanceSmall" />
-        
+
     </LinearLayout>
-    
+
     <Space
         android:layout_width="match_parent"
-        android:layout_height="2dp" />
-    
+        android:layout_height="10dp" />
+
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="35dp"
+        android:layout_height="30dp"
         android:orientation="horizontal" >
-        
+
         <TextView
             android:layout_width="100dp"
-            android:layout_height="35dp"
+            android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginLeft="20dp"
             android:gravity="center_vertical"
             android:text="@string/text_confirm"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
             android:id="@+id/edit_retype_account_password"
             android:layout_width="fill_parent"
-            android:layout_height="35dp"
+            android:layout_height="30dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="25dp"
+            android:paddingLeft="5dp"
+            android:background="@drawable/border_edit_text"
             android:gravity="center_vertical"
             android:inputType="textPassword"
             android:textAppearance="?android:attr/textAppearanceSmall" />
-        
+
     </LinearLayout>
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
     </LinearLayout>
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="2dp" />
-    
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="10dp" />
-    
+
+
     <Button
         android:id="@+id/button_register"
+        android:layout_below="@+id/email_pass_layout"
         android:layout_width="280dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
         android:onClick="onRegister"
         android:text="@string/text_register_button"
+        android:background="@color/button"
+        android:textColor="#FFFFFF"
         android:textAppearance="?android:attr/textAppearanceMedium"/>
     <!--android:background="@drawable/button_style"-->
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="6dp" />
     <TextView
         android:id="@+id/textView_Register2"
+        android:layout_above="@+id/textView_Register3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="7dp"
         android:gravity="center"
         android:text="@string/text_register_2"
-        android:textSize="15sp"/>
+        android:textSize="14sp"/>
     <TextView
         android:id="@+id/textView_Register3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="5dp"
-        android:textColor="@color/green"
-        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="7dp"
+        android:textColorLink="@color/green"
         android:text="@string/text_register_3"
         android:textSize="16sp"/>
-</LinearLayout>
+</RelativeLayout>

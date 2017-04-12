@@ -433,20 +433,14 @@
     <string name="text_package">Package</string>
     <string name="text_login">Login</string>
     <string name="text_register">Register</string>
-    <string name="text_register_button">Create Free Trail</string>
+    <string name="text_acc_info">Enter Your Account Information</string>
+    <string name="text_register_button">Create Free Trial</string>
+    <string name="text_forgetpass"><a href="https://www.ibvpn.com/billing/pwreset.php">Forgot Password</a></string>
+    <string name="text_register_3"><a href="https://www.ibvpn.com/terms-of-service/">Terms of Service</a></string>
     <string name="text_version">Version: 0.0.1</string>
     <string name="text_register_1">START A 6-HOUR FREE TRIAL</string>
     <string name="text_register_2">BY CREATING AN ACCOUNT, \n YOU ARE AGREEING TO OUR TERMS OF SERVICE</string>
-    <string name="text_register_3">Terms of Service</string>
     <string name="text_email">Email</string>
     <string name="text_password">Password</string>
     <string name="text_confirm">Confirm</string>
-
-
-
-
-
-
-
-
 </resources>
