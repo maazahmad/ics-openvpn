@@ -5,26 +5,24 @@
 
 package de.blinkt.openvpn;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.VpnService;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4n.view.ViewPager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -35,7 +33,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,18 +59,17 @@ import de.blinkt.openvpn.activities.LogWindow;
 import de.blinkt.openvpn.activities.MainActivity;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
-import de.blinkt.openvpn.fragments.VPNProfileList;
 import de.blinkt.openvpn.views.ScreenSlidePagerAdapter;
 
 //import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
-public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateListener {
+public class ActivityServerList extends BaseActivity  {
     public static final int AlertDialogExitNotify = 0x90001;
     public static final int NetDisconnectedNotify = 0x90002;
+
 
 
     public final static int RESULT_VPN_DELETED = Activity.RESULT_FIRST_USER;
@@ -91,6 +87,11 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     private static final String PREF_SORT_BY_LRU = "sortProfilesByLRU";
 //    private String mLastStatusMessage;
 
+    private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLinearLayoutManager;
+    private RecyclerAdapter mAdapter;
+
+    private ArrayList<String> mServerList;
 
 
 
@@ -105,11 +106,9 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     private ProgressDialog m_waitdlg;
     private String m_package;
     private Timer m_timer;
+    private String m_data;
     private long                     m_date;
 
-
-
-    public static ArrayList<String> myServer;
 
 
 
@@ -137,53 +136,30 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     private String mLastStatusMessage;
 
 
-
-    //added <code></code>
-
-
-    @Override
-    public void updateState(String state, String logmessage, final int localizedResId, ConnectionStatus level) {
-        ActivityDashboard.this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("whooo","bitch is running");
-                mLastStatusMessage = VpnStatus.getLastCleanLogMessage(getParent());
-//                mArrayadapter.notifyDataSetChanged();
-            }
-        });
-    }
-    @Override
-    public void setConnectedVPN(String uuid) {
-    }
-
-
-    // added code
-
-
     enum Status {
         Connecting,
         Connected,
         Disconnecting,
         Disconnected,
     }
-    
+
     private static class ExtendHandler extends Handler {
-        private ActivityDashboard m_activity;
-        
-        public ExtendHandler(ActivityDashboard activity) {
+        private ActivityServerList m_activity;
+
+        public ExtendHandler(ActivityServerList activity) {
             setContext(activity);
         }
-        
-        public void setContext(ActivityDashboard activity) {
+
+        public void setContext(ActivityServerList activity) {
             m_activity = activity;
         }
-        
+
         @Override
         public void handleMessage(Message msg) {
             m_activity.handleMessage(msg);
         }
     }
-    
+
     protected static final String MIXPANEL_TOKEN = "807d7275a563b23cd31b0aad50e63f4f";
 
     protected void mixpanelAdd(JSONObject props, String name, String value) {
@@ -203,27 +179,36 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 
     private class NetStateCheckTask extends TimerTask {
         private Context m_context;
-        
+
         public NetStateCheckTask(Context context) {
             m_context = context;
         }
-        
+
         public void run() {
             if(!isInternetAvailable(m_context) && m_status != Status.Disconnected) {
                 m_handler.sendEmptyMessage(NetDisconnectedNotify);
             }
         }
     }
-    
+
     @Override
-    protected void onCreate(android.os.Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         Log.i("ibVPN", "onCreate dashboard.");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.mydash);
-        m_manager=ProfileManager.getInstance(this);
+        setContentView(R.layout.servers);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        mLinearLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLinearLayoutManager);
+        mAdapter = new RecyclerAdapter(mServerList);
 
+        Log.d("Recycle Adapter",  "Count"+mAdapter.getItemCount()+"");
+
+        mRecyclerView.setAdapter(mAdapter);
+
+
+        m_manager=ProfileManager.getInstance(this);
         // set theme by code, this will improve the speed.
-//        setTheme(R.style.App_Theme);
+       setTheme(R.style.blinkt_lolTheme);
 //        mPager = (ViewPager) findViewById(R.id.pager);
 
         // new the handler here, so it will not leak.
@@ -237,10 +222,11 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         setStatus(Status.Disconnected);
         
         // get data from intent.
-        final Intent intent = getIntent();
+        Intent intent = getIntent();
         m_username = intent.getStringExtra("username");
         m_password = intent.getStringExtra("password");
         m_userid = intent.getStringExtra("userid");
+//        updatePackage(m_data);
 
         // delete the vpn log.
         File file = new File(getCacheDir(), "vpnlog.txt");
@@ -248,33 +234,20 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             file.delete();
         //TODO fix On Register
         // get package and server name.
-        Log.d("m_password" , m_password);
+//        Log.d("m_password" , m_password);
         m_remote.getUserService(m_userid, m_password);
         m_waitdlg = ProgressDialog.show(this, "Loading Servers", "Waiting for server reply...", true, false);
         
         // make text view link valid.
 //        TextView view1 = (TextView)findViewById(R.id.textview_checkip);
 //        view1.setMovementMethod(LinkMovementMethod.getInstance());
-        TextView view2 = (TextView)findViewById(R.id.textview_serverlist);
+//        TextView view2 = (TextView)findViewById(R.id.view_dashboard_status);
 //        view2.setMovementMethod(LinkMovementMethod.getInstance());
 //        TextView view3 = (TextView)findViewById(R.id.view_dashboard_setting);
 //        view3.setMovementMethod(LinkMovementMethod.getInstance());
 //        view3.setText(Html.fromHtml("<font color=#FFFFFF>Advanced Settings</font><b>  &gt;&gt;&gt;</b>"));
         
         // start internet checker timer, will not stop this.
-
-        view2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(ActivityDashboard.this,ActivityServerList.class);
-                intent.putExtra("userid", m_userid);
-                intent.putExtra("username", m_userid);
-                intent.putExtra("password", m_password);
-
-                startActivity(i);
-
-            }
-        });
         m_timer.schedule(new NetStateCheckTask(this), 3000, 3000);
         try {
             FileInputStream fi = new FileInputStream(getFilesDir() + "/setting.xml");
@@ -296,10 +269,27 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d("Start", ActivityDashboard.myServer.toString());
+//        if (ActivityDashboard.myServer.size() == 0) {
+//      }
         
 //        RateThisApp.onStart(this);
 //        RateThisApp.showRateDialogIfNeeded(this);
     }
+
+    public  void  requestServerList () {
+
+    }
+//    public void receivedNewPhoto(final Photo newPhoto) {
+//
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                mPhotosList.add(newPhoto);
+//                mAdapter.notifyItemInserted(mPhotosList.size());
+//            }
+//        });
+//    }
      
     @Override
     protected void onStop() {
@@ -314,7 +304,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     
     @Override
     public void onResume() {
-        Log.i("ibVPN", "onResume dashboard.");
+        Log.i("ibVPN", "onResume SercerList.");
         super.onResume();
     }
     
@@ -805,7 +795,6 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     public String getCurrentServer() {
         Spinner spinServer = (Spinner)findViewById(R.id.spinner_dashboard_location);
         String[] packitem = m_package.split("\n");
-
         if(packitem == null || packitem.length < 2)
             return "";
         
@@ -852,7 +841,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         Spinner spinPackage, spinServer;
         spinPackage = (Spinner)findViewById(R.id.spinner_dashboard_package);
         spinServer = (Spinner)findViewById(R.id.spinner_dashboard_location);
-        Log.d("raw" ,data.toString());
+        
         String[] raw = data.split("\n");
         if(raw.length < 2)
             return; // not enough array items.
@@ -860,8 +849,6 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         String[] tempServer = raw[1].trim().split("\\\"");
         ArrayList<String> aPackage = new ArrayList<String>();
         ArrayList<String> aServer = new ArrayList<String>();
-        myServer = new ArrayList<>();
-        aServer = myServer;
         int skipper;
         
         skipper = 1;
@@ -876,15 +863,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
                 continue;
             aServer.add(item);
         }
-        myServer = aServer;
-        Log.d("HAHAHAH",aServer.toString());
-        if (myServer == null){
-            Log.d("Null","Null");
-        }else
-            Log.d("Null", "Not Null");
-
-        Log.d("myserver",myServer.toString());
-
+        
         String[] arrayPackage = new String[aPackage.size()];
         arrayPackage = aPackage.toArray(arrayPackage);
         String[] arrayServer = new String[aServer.size()];
@@ -913,7 +892,9 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         }
         adapterServer.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);  
         spinServer.setAdapter(adapterServer);  
-        spinServer.setOnItemSelectedListener(new ServerSelectedListener());  
+        spinServer.setOnItemSelectedListener(new ServerSelectedListener());
+        mServerList=aServer;
+        Log.d("mserverList", mServerList.toString());
     }
     
     public String getProperty(String key) {

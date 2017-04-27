@@ -435,7 +435,7 @@
     <string name="text_register">Register</string>
     <string name="text_acc_info">Enter Your Account Information</string>
     <string name="text_register_button">Create Free Trial</string>
-    <string name="text_forgetpass"><a href="https://www.ibvpn.com/billing/pwreset.php">Forgot Password</a></string>
+    <string name="text_forgetpass"><a href="https://www.ibvpn.com/billing/pwreset.php">Forgot Password?</a></string>
     <string name="text_register_3"><a href="https://www.ibvpn.com/terms-of-service/">Terms of Service</a></string>
     <string name="text_version">Version: 0.0.1</string>
     <string name="text_register_1">START A 6-HOUR FREE TRIAL</string>
