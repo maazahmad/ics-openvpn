@@ -110,6 +110,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 
 
     public static ArrayList<String> myServer;
+    public static String lolstring;
 
 
 
@@ -655,6 +656,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             // get session name.
             Spinner spinServer = (Spinner)findViewById(R.id.spinner_dashboard_location);
             String session = spinServer.getSelectedItem().toString();
+            Log.d("Seleceted item", session);
 
             // connecting to server.
             String port = getProperty("PORT");
@@ -811,8 +813,9 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         
         String[] tempServer = packitem[1].trim().split("\\\"");
         Object selected = spinServer.getSelectedItem();
-        String server = selected.toString();
-
+//        String server = selected.toString();
+        String server = lolstring;
+        Log.d("Bitch",server);
         int skipper = 3, stopper = -1;
         for(String item : tempServer) {
             if(stopper == skipper)
