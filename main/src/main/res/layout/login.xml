@@ -1,8 +1,19 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/background"
     android:orientation="vertical">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@color/button"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:theme="@style/ToolBarStyle"
+        />
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -12,6 +23,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
         android:layout_marginTop="50dp"
         android:orientation="vertical">
         <ImageView
@@ -156,4 +168,6 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/green"
         android:textColorLink="#FFFFFF" />
+
+
 </RelativeLayout>

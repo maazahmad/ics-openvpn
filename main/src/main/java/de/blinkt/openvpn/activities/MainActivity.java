@@ -6,7 +6,6 @@
 package de.blinkt.openvpn.activities;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -47,10 +46,7 @@ public class MainActivity extends BaseActivity {
         mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new ScreenSlidePagerAdapter(getFragmentManager(), this);
 
-        /* Toolbar and slider should have the same elevation */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            disableToolbarElevation();
-        }
+
 
 
 
@@ -97,11 +93,6 @@ public class MainActivity extends BaseActivity {
                 || getPackageManager().hasSystemFeature(FEATURE_LEANBACK));
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void disableToolbarElevation() {
-        ActionBar toolbar = getActionBar();
-        toolbar.setElevation(0);
-    }
 
 
     @Override

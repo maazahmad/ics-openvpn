@@ -23,6 +23,7 @@ import android.os.Message;
 import android.support.v4n.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -174,6 +175,7 @@ public class ActivityServerList extends BaseActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         Log.i("ibVPN", "onCreate serverList.");
         super.onCreate(savedInstanceState);
+        setTheme(R.style.blinkt_lolTheme);
         setContentView(R.layout.servers);
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         mLinearLayoutManager = new LinearLayoutManager(this);
@@ -302,8 +304,7 @@ public class ActivityServerList extends BaseActivity  {
         TextView textStatus = (TextView)findViewById(R.id.view_dashboard_status);
         Spinner spinPackage = (Spinner)findViewById(R.id.spinner_dashboard_package);
         Spinner spinServer = (Spinner)findViewById(R.id.spinner_dashboard_location);
-        
-        if(btnConnect == null || textStatus == null 
+        if(btnConnect == null || textStatus == null
         || spinPackage == null || spinServer == null) {
             Log.e("ibVPN", "at least one item do not exist.");
             return;

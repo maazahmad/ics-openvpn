@@ -5,12 +5,16 @@
   -->
 
 <resources>
-    <style name="blinkt.lolTheme" parent="android:Theme.Material.Light">
+    <style name="blinkt.lolTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!--<item name="android:windowBackground">@drawable/image_map</item>-->
         <!--<item name="android:windowNoTitle">true</item>-->
         <!--<item name="android:itemBackground">@drawable/image_map</item>-->
         <!--<item name="android:textViewStyle">-->
     </style>
-
+    <style name="ToolBarStyle" parent="Theme.AppCompat">
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
+    </style>
 
 </resources>

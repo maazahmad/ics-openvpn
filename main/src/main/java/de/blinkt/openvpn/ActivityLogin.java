@@ -14,6 +14,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.widget.Toolbar;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
@@ -29,12 +30,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import de.blinkt.openvpn.activities.BaseActivity;
+
 //import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
-public class ActivityLogin extends Activity {
+public class ActivityLogin extends BaseActivity {
     //TODO Change access of userid
     public String userid;
-
+    public String activity_name= "Login";
     private static class ExtendHandler extends Handler {
 
         private ActivityLogin m_activity;
@@ -125,6 +128,13 @@ public class ActivityLogin extends Activity {
         // set theme by code, this will improve the speed.
         setTheme(R.style.blinkt_lolTheme);
         setContentView(R.layout.login);
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(myToolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        //hmm
+        getSupportActionBar().setTitle("My title");
+        myToolbar.setTitle("Login");
+        Log.d("toolbartitle",myToolbar.getTitle().toString());
 
         Log.i("i", "i");
         

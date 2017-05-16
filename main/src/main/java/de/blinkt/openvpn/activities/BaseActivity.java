@@ -9,9 +9,10 @@ import android.app.Activity;
 import android.app.UiModeManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 
-public class BaseActivity extends Activity {
+public class BaseActivity extends AppCompatActivity{
     private boolean isAndroidTV() {
         final UiModeManager uiModeManager = (UiModeManager) getSystemService(Activity.UI_MODE_SERVICE);
         return uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;

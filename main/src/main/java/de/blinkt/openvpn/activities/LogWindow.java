@@ -19,8 +19,11 @@ public class LogWindow extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.blinkt_lolTheme);
+
         setContentView(R.layout.log_window);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        //// TODO: 5/16/2017
+//        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
