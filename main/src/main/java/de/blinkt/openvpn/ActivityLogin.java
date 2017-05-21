@@ -157,6 +157,7 @@ public class ActivityLogin extends BaseActivity {
         textView1.setMovementMethod(LinkMovementMethod.getInstance());
 
 
+
         // load saved login from file.
         File file = new File(getCacheDir() + "/login");
         if(file.exists() && file.length() == 0)

@@ -5,11 +5,10 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:baselineAligned="false"
-        android:gravity="center|top"
+        android:layout_height="match_parent"
+        android:background="@color/background"
         android:orientation="vertical"
         tools:context=".ActivityDashboard" >
     <android.support.v7.widget.Toolbar
@@ -23,75 +22,33 @@
         android:title="Dash"
         app:theme="@style/ToolBarStyle"
         />
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="#187817"
-    android:baselineAligned="false"
-    android:gravity="center|top"
-    android:orientation="vertical"
-    android:paddingBottom="5dp"
-    android:paddingTop="125dp"
-    tools:context=".ActivityDashboard" >
-
-
-    <!--<LinearLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:baselineAligned="false"-->
-        <!--android:gravity="center"-->
-        <!--android:measureWithLargestChild="false"-->
-        <!--android:orientation="horizontal" >-->
-
-        <!--<TextView-->
-            <!--android:layout_width="83dp"-->
-            <!--android:layout_height="40dp"-->
-            <!--android:layout_gravity="center"-->
-            <!--android:layout_marginLeft="5dp"-->
-            <!--android:layout_marginTop="1dp"-->
-            <!--android:gravity="center_vertical"-->
-            <!--android:paddingRight="13dp"-->
-            <!--android:text="@string/text_package"-->
-            <!--android:textAppearance="?android:attr/textAppearanceMedium" />-->
-
-        <!--<Spinner-->
-            <!--android:id="@+id/spinner_dashboard_package"-->
-            <!--style="android:spinnerStyle"-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:paddingLeft="15dp"-->
-            <!--android:popupBackground="#23282d" />-->
-
-    <!--</LinearLayout>-->
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:gravity="center"
-        android:orientation="horizontal" >
-
-        <TextView
-            android:layout_width="80dp"
-            android:layout_height="match_parent"
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/image_map" />
+        <LinearLayout
+            android:id="@+id/connection_image_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/toolbar"
+            android:layout_marginTop="50dp"
+            android:orientation="vertical">
+        <ImageView
+            android:layout_width="200dp"
+            android:layout_height="200dp"
             android:layout_gravity="center"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="1dp"
-            android:gravity="center_vertical"
-            android:text="@string/text_location"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:src="@drawable/icon_notconnected" />
+        </LinearLayout>
 
-        <Spinner
-            android:id="@+id/spinner_dashboard_location"
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="3dp"
-            android:paddingLeft="13dp"
-            android:popupBackground="#23282d" />
 
-    </LinearLayout>
     <LinearLayout
+        android:id="@+id/layout_location_text"
         android:layout_width="match_parent"
+        android:layout_below="@id/connection_image_layout"
         android:layout_height="40dp"
+        android:layout_marginTop="20dp"
         android:gravity="center"
         android:orientation="horizontal" >
 
@@ -101,74 +58,65 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:layout_marginTop="1dp"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:text="@string/text_location"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
+
+
     </LinearLayout>
-    <TextView
-        android:id="@+id/view_dashboard_status"
-        android:layout_width="280dp"
-        android:layout_height="40dp"
-        android:layout_gravity="center|bottom"
-        android:layout_marginTop="5dp"
-        android:gravity="center"
-        android:onClick="onStatus"
-        android:text="@string/text_status"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <TextView
-        android:id="@+id/view_dashboard_setting"
-        android:layout_width="wrap_content"
-        android:layout_height="80dp"
-        android:layout_gravity="center|top|bottom"
-        android:gravity="center"
-        android:onClick="onSetting"
-        android:text="@string/text_status"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        <LinearLayout
+            android:id="@+id/layout_change_text"
+            android:layout_width="match_parent"
+            android:layout_below="@id/layout_location_text"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:orientation="horizontal" >
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_blue_pin" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="2dp" />
+            <TextView
+                android:id="@+id/textview_serverlist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Select Another Server"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColorLink="#FFFFFF" />
+
+            </LinearLayout>
 
     <Button
         android:id="@+id/button_dashboard_connect"
+        android:layout_below="@id/layout_change_text"
         android:layout_width="280dp"
-        android:layout_height="40dp"
-        android:layout_gravity="center|bottom"
-        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:background="@color/button"
         android:onClick="onConnect"
         android:text="@string/text_connect"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="#FFFFFF" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="5dp" />
 
     <TextView
         android:id="@+id/textview_checkip"
+        android:text="Have A Question ? Contact Us"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_gravity="center"
-        android:text="@string/text_checkip"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColorLink="#FFFFFF" />
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="52dp" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:textColorLink="@color/green"
+        android:textSize="16sp"
+        />
 
-    <TextView
-        android:id="@+id/textview_serverlist"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_gravity="center"
-        android:text="ServerList"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColorLink="#FFFFFF" />
-
-</LinearLayout>
-    </LinearLayout>
+    </RelativeLayout>
     <ListView
         android:id="@+id/left_drawer"
         android:layout_width="240dp"

@@ -137,18 +137,23 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 
 
     @Override
-    public void updateState(String state, String logmessage, final int localizedResId, ConnectionStatus level) {
+    public void updateState(final String state, String logmessage, final int localizedResId, ConnectionStatus level) {
         ActivityDashboard.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.d("whooo","bitch is running");
+
                 mLastStatusMessage = VpnStatus.getLastCleanLogMessage(getParent());
 //                mArrayadapter.notifyDataSetChanged();
+//                setStatus(Status.Connected);
+               Log.d("state", state.toString());
             }
         });
     }
     @Override
     public void setConnectedVPN(String uuid) {
+        Log.d("state", "setConnectedVPB");
+
+
     }
 
 
@@ -215,17 +220,25 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         Log.i("ibVPN", "onCreate dashboard.");
         super.onCreate(savedInstanceState);
         // set theme by code, this will improve the speed.
-        setTheme(R.style.Theme_AppCompat_NoActionBar);
+        setTheme(R.style.blinkt_lolTheme);
         setContentView(R.layout.mydash);
 
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
+
         getSupportActionBar().setDisplayShowTitleEnabled(true);
-        getSupportActionBar().setTitle("My title");
-        myToolbar.setTitle("Status");
+        getSupportActionBar().setTitle("");
         getSupportActionBar().setHomeButtonEnabled(true);
-        myToolbar.setNavigationIcon(R.drawable.ic_add_circle_outline_grey600_24dp);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        myToolbar.setNavigationIcon(R.drawable.ic_action_menu);
+        myToolbar.setNavigationOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(ActivityDashboard.this, "Back clicked!",     Toast.LENGTH_SHORT).show();
+                Log.d("Clicked", "drawer open");
+            }
+        });
 
 
 //        Log.d("toolbartitle",myToolbar.getTitle().toString());
@@ -260,15 +273,8 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         m_remote.getUserService(m_userid, m_password);
         m_waitdlg = ProgressDialog.show(this, "Loading Servers", "Waiting for server reply...", true, false);
         
-        // make text view link valid.
-//        TextView view1 = (TextView)findViewById(R.id.textview_checkip);
-//        view1.setMovementMethod(LinkMovementMethod.getInstance());
         TextView view2 = (TextView)findViewById(R.id.textview_serverlist);
-//        view2.setMovementMethod(LinkMovementMethod.getInstance());
-//        TextView view3 = (TextView)findViewById(R.id.view_dashboard_setting);
-//        view3.setMovementMethod(LinkMovementMethod.getInstance());
-//        view3.setText(Html.fromHtml("<font color=#FFFFFF>Advanced Settings</font><b>  &gt;&gt;&gt;</b>"));
-        
+
         // start internet checker timer, will not stop this.
 
         view2.setOnClickListener(new View.OnClickListener() {
@@ -304,7 +310,6 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     @Override
     protected void onStart() {
         super.onStart();
-        
 //        RateThisApp.onStart(this);
 //        RateThisApp.showRateDialogIfNeeded(this);
     }
@@ -324,6 +329,11 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     public void onResume() {
         Log.i("ibVPN", "onResume dashboard.");
         super.onResume();
+        TextView locationServer = (TextView)findViewById(R.id.view_location);
+        if (lolstring!= "") {
+            locationServer.setText(lolstring);
+        }
+        Toast.makeText(ActivityDashboard.this,"lol" , Toast.LENGTH_LONG);
     }
     
     @Override
@@ -679,7 +689,6 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 
             updateOvpnConfigFromAssets(m_server, m_port, m_proto, m_extra);
 
-//            Log.d("TADA" ,  createVPNProfile().toString());
             m_vpnprofile = createVPNProfile();
             m_vpnprofile.mUsername = m_username;
             m_vpnprofile.mPassword = m_password;
@@ -689,8 +698,6 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 
 //            gotoMainActivity();
             startVPN(m_vpnprofile);
-
-
 //            permissionConnect();
             m_date = System.currentTimeMillis();
         } else
@@ -756,17 +763,16 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     
     public void setStatus(Status status) {
         Button btnConnect = (Button)findViewById(R.id.button_dashboard_connect);
-        TextView textStatus = (TextView)findViewById(R.id.view_dashboard_status);
 //        Spinner spinPackage = (Spinner)findViewById(R.id.spinner_dashboard_package);
-        Spinner spinServer = (Spinner)findViewById(R.id.spinner_dashboard_location);
+//        Spinner spinServer = (Spinner)findViewById(R.id.spinner_dashboard_location);
+        TextView locationServer = (TextView)findViewById(R.id.view_location);
 
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
 
         
-        if(btnConnect == null || textStatus == null 
-        || spinServer == null) {
+        if(btnConnect == null || myToolbar.getTitle() == null || locationServer == null) {
             Log.e("ibVPN", "at least one item do not exist.");
             return;
         }
@@ -775,40 +781,40 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         switch(m_status) {
         case Connecting: {
 //            spinPackage.setEnabled(false);
-            spinServer.setEnabled(false);
+//            spinServer.setEnabled(false);
             btnConnect.setEnabled(true);
             btnConnect.setText(R.string.text_cancel);
             myToolbar.setTitle("Connecting");
-            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#fdbb2f>CONNECTING...</font><b>  &gt;&gt;&gt;</b>"));
+//            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#fdbb2f>CONNECTING...</font><b>  &gt;&gt;&gt;</b>"));
             break; }
             
         case Connected: {
 //            spinPackage.setEnabled(false);
-            spinServer.setEnabled(false);
+//            spinServer.setEnabled(false);
             btnConnect.setEnabled(true);
             btnConnect.setText("Disconnect");
             myToolbar.setTitle("Connected");
             myToolbar.setBackgroundColor(Color.GREEN);
-            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#00FF20>CONNECTED</font><b>  &gt;&gt;&gt;</b>"));
+//            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#00FF20>CONNECTED</font><b>  &gt;&gt;&gt;</b>"));
             break; }
             
         case Disconnecting: {
 //            spinPackage.setEnabled(false);
-            spinServer.setEnabled(false);
+//            spinServer.setEnabled(false);
             btnConnect.setEnabled(false);
             btnConnect.setText("Disconnect");
             myToolbar.setTitle("Disconnecting");
-            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#FF0000>DISCONNECTING...</font><b>  &gt;&gt;&gt;</b>"));
+//            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#FF0000>DISCONNECTING...</font><b>  &gt;&gt;&gt;</b>"));
             break; }
         
         case Disconnected: {
 //            spinPackage.setEnabled(true);
-            spinServer.setEnabled(true);
+//            spinServer.setEnabled(true);
             btnConnect.setEnabled(true);
             btnConnect.setText("Connect");
             myToolbar.setTitle("NOT CONNECTED");
             myToolbar.setBackgroundColor(Color.RED);
-            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#FF0000>NOT CONNECTED</font><b>  &gt;&gt;&gt;</b>"));
+//            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#FF0000>NOT CONNECTED</font><b>  &gt;&gt;&gt;</b>"));
             break; }
         
         default:
@@ -829,12 +835,11 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 
         if(packitem == null || packitem.length < 2)
             return "";
-        
+
         String[] tempServer = packitem[1].trim().split("\\\"");
         Object selected = locationServer.toString();
 //        String server = selected.toString();
         String server = lolstring;
-        Log.d("Bitch",server);
         int skipper = 3, stopper = -1;
         for(String item : tempServer) {
             if(stopper == skipper)
@@ -873,9 +878,8 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         
         Spinner spinPackage, spinServer;
 //        spinPackage = (Spinner)findViewById(R.id.spinner_dashboard_package);
-        spinServer = (Spinner)findViewById(R.id.spinner_dashboard_location);
+//        spinServer = (Spinner)findViewById(R.id.spinner_dashboard_location);
         TextView locationServer = (TextView)findViewById(R.id.view_location);
-        Log.d("raw" ,data.toString());
         String[] raw = data.split("\n");
         if(raw.length < 2)
             return; // not enough array items.
@@ -899,14 +903,11 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             aServer.add(item);
         }
         myServer = aServer;
-        Log.d("HAHAHAH",aServer.toString());
+
         if (myServer == null){
             Log.d("Null","Null");
         }else
             Log.d("Null", "Not Null");
-
-        Log.d("myserver",myServer.toString());
-
         String[] arrayPackage = new String[aPackage.size()];
         arrayPackage = aPackage.toArray(arrayPackage);
         String[] arrayServer = new String[aServer.size()];
@@ -915,30 +916,30 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         ArrayAdapter<String> adapterPackage = new ArrayAdapter<String>(this, R.layout.spinner_text, arrayPackage);
         ArrayAdapter<String> adapterServer = new ArrayAdapter<String>(this, R.layout.spinner_text, arrayServer);
 
-        class PackageSelectedListener implements OnItemSelectedListener {
-            public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                Log.d("ibVPN", "Package Selected:" + String.valueOf(arg2));
-            }  
-            public void onNothingSelected(AdapterView<?> arg0) {
-            }  
-        }
-        adapterPackage.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        Log.d("adapter package",adapterPackage.toString());
+//        class PackageSelectedListener implements OnItemSelectedListener {
+//            public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+//                Log.d("ibVPN", "Package Selected:" + String.valueOf(arg2));
+//            }
+//            public void onNothingSelected(AdapterView<?> arg0) {
+//            }
+//        }
+//        adapterPackage.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        Log.d("adapter package",adapterPackage.toString());
 
 //        spinPackage.setAdapter(adapterPackage);
 //        spinPackage.setOnItemSelectedListener(new PackageSelectedListener());
         
-        class ServerSelectedListener implements OnItemSelectedListener {
-            public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                Log.d("ibVPN", "Server Selected:" + String.valueOf(arg2));
-            }  
-            public void onNothingSelected(AdapterView<?> arg0) {
-            }  
-        }
-        adapterServer.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        class ServerSelectedListener implements OnItemSelectedListener {
+//            public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+//                Log.d("ibVPN", "Server Selected:" + String.valueOf(arg2));
+//            }
+//            public void onNothingSelected(AdapterView<?> arg0) {
+//            }
+//        }
+//        adapterServer.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
        locationServer.setText(myServer.get(0).toString());
-        spinServer.setAdapter(adapterServer);
-        spinServer.setOnItemSelectedListener(new ServerSelectedListener());
+//        spinServer.setAdapter(adapterServer);
+//        spinServer.setOnItemSelectedListener(new ServerSelectedListener());
     }
     
     public String getProperty(String key) {
