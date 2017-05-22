@@ -443,4 +443,14 @@
     <string name="text_email">Email</string>
     <string name="text_password">Password</string>
     <string name="text_confirm">Confirm</string>
+    <string-array name="planets_array">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+        <item>Jupiter</item>
+        <item>Saturn</item>
+        <item>Uranus</item>
+        <item>Neptune</item>
+    </string-array>
 </resources>

@@ -186,9 +186,28 @@ public class ActivityServerList extends BaseActivity  {
 
         mRecyclerView.setAdapter(mAdapter);
 
+
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(myToolbar);
+
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("ServerList");
+
+//        myToolbar.setNavigationIcon();
+        myToolbar.setNavigationOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(ActivityServerList.this, "Back clicked!",     Toast.LENGTH_SHORT).show();
+                Log.d("Clicked", "drawer open");
+            }
+        });
+
+
         m_manager=ProfileManager.getInstance(this);
-        // set theme by code, this will improve the speed.
-       setTheme(R.style.blinkt_lolTheme);
 //        mPager = (ViewPager) findViewById(R.id.pager);
 
         // new the handler here, so it will not leak.

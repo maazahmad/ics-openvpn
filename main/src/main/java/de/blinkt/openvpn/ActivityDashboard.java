@@ -22,6 +22,7 @@ import android.net.VpnService;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4n.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -33,6 +34,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,6 +57,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import de.blinkt.openvpn.activities.BaseActivity;
+import de.blinkt.openvpn.activities.DisconnectVPN;
 import de.blinkt.openvpn.activities.FileSelect;
 import de.blinkt.openvpn.activities.LogWindow;
 import de.blinkt.openvpn.activities.MainActivity;
@@ -124,6 +128,11 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     private ViewPager mPager;
 
 
+    private String[] mPlanetTitles;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+
+
     private boolean mCmfixed = false;
 
 
@@ -143,6 +152,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             public void run() {
 
                 mLastStatusMessage = VpnStatus.getLastCleanLogMessage(getParent());
+
 //                mArrayadapter.notifyDataSetChanged();
 //                setStatus(Status.Connected);
                Log.d("state", state.toString());
@@ -222,7 +232,8 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         // set theme by code, this will improve the speed.
         setTheme(R.style.blinkt_lolTheme);
         setContentView(R.layout.mydash);
-
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
@@ -239,6 +250,12 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
                 Log.d("Clicked", "drawer open");
             }
         });
+
+        // Set the adapter for the list view
+//        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+//                R.layout.drawer_list_item, mPlanetTitles));
+        // Set the list's click listener
+//        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 
 //        Log.d("toolbartitle",myToolbar.getTitle().toString());
@@ -329,6 +346,10 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     public void onResume() {
         Log.i("ibVPN", "onResume dashboard.");
         super.onResume();
+
+        if(VpnStatus.isVPNActive()){
+            setStatus(Status.Connected);
+        }
         TextView locationServer = (TextView)findViewById(R.id.view_location);
         if (lolstring!= "") {
             locationServer.setText(lolstring);
@@ -707,8 +728,12 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             //mixpanelTrack("Cancel Connection", null);
         } else
         if(((Button)v).getText().toString().equalsIgnoreCase(getString(R.string.text_disconnect))) {
-//            m_openvpn.disconnect();
-            setStatus(Status.Disconnected); 
+//            .disconnect();
+            if (VpnStatus.isVPNActive() ) {
+                Intent disconnectVPN = new Intent(this, DisconnectVPN.class);
+                startActivity(disconnectVPN);
+            }
+                setStatus(Status.Disconnected);
 
             String dura = formatTime(System.currentTimeMillis() - m_date);
             Log.d("ibVPN", "Session Duration: " + dura);
@@ -766,8 +791,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 //        Spinner spinPackage = (Spinner)findViewById(R.id.spinner_dashboard_package);
 //        Spinner spinServer = (Spinner)findViewById(R.id.spinner_dashboard_location);
         TextView locationServer = (TextView)findViewById(R.id.view_location);
-
-
+        ImageView ibVpnLogo = (ImageView)findViewById(R.id.ib_vpn_Con_ic);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
 
@@ -795,6 +819,8 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             btnConnect.setText("Disconnect");
             myToolbar.setTitle("Connected");
             myToolbar.setBackgroundColor(Color.GREEN);
+            ibVpnLogo.setImageDrawable(getDrawable(R.drawable.icon_connected));
+
 //            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#00FF20>CONNECTED</font><b>  &gt;&gt;&gt;</b>"));
             break; }
             
@@ -804,6 +830,8 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             btnConnect.setEnabled(false);
             btnConnect.setText("Disconnect");
             myToolbar.setTitle("Disconnecting");
+            ibVpnLogo.setImageDrawable(getDrawable(R.drawable.icon_notconnected));
+
 //            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#FF0000>DISCONNECTING...</font><b>  &gt;&gt;&gt;</b>"));
             break; }
         
@@ -814,6 +842,8 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             btnConnect.setText("Connect");
             myToolbar.setTitle("NOT CONNECTED");
             myToolbar.setBackgroundColor(Color.RED);
+            ibVpnLogo.setImageDrawable(getDrawable(R.drawable.icon_notconnected));
+
 //            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#FF0000>NOT CONNECTED</font><b>  &gt;&gt;&gt;</b>"));
             break; }
         
