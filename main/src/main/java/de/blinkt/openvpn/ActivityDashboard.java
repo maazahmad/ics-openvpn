@@ -5,15 +5,16 @@
 
 package de.blinkt.openvpn;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -21,11 +22,12 @@ import android.net.Uri;
 import android.net.VpnService;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
+import android.os.RemoteException;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4n.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -63,6 +65,8 @@ import de.blinkt.openvpn.activities.LogWindow;
 import de.blinkt.openvpn.activities.MainActivity;
 import de.blinkt.openvpn.core.ConfigParser;
 import de.blinkt.openvpn.core.ConnectionStatus;
+import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
+import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
@@ -88,6 +92,8 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     private static final int MENU_CHANGE_SORTING = Menu.FIRST + 2;
     private static final String PREF_SORT_BY_LRU = "sortProfilesByLRU";
 //    private String mLastStatusMessage;
+    private  boolean dicojugar =true;
+    private IOpenVPNServiceInternal mService;
 
 
 
@@ -165,6 +171,23 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 
 
     }
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+
+            mService = IOpenVPNServiceInternal.Stub.asInterface(service);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mService = null;
+        }
+
+    };
 
 
     // added code
@@ -252,8 +275,8 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         });
 
         // Set the adapter for the list view
-//        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-//                R.layout.drawer_list_item, mPlanetTitles));
+//            mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+//                    R.layout.drawer_list_item, mPlanetTitles));
         // Set the list's click listener
 //        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
@@ -346,15 +369,20 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     public void onResume() {
         Log.i("ibVPN", "onResume dashboard.");
         super.onResume();
+        Intent intent = new Intent(this, OpenVPNService.class);
+        intent.setAction(OpenVPNService.START_SERVICE);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
-        if(VpnStatus.isVPNActive()){
-            setStatus(Status.Connected);
-        }
+
         TextView locationServer = (TextView)findViewById(R.id.view_location);
-        if (lolstring!= "") {
-            locationServer.setText(lolstring);
+        if (lolstring!= "" && myServer != null) {
+            locationServer.setText(myServer.get(0));
+            lolstring = myServer.get(0);
         }
-        Toast.makeText(ActivityDashboard.this,"lol" , Toast.LENGTH_LONG);
+        if(VpnStatus.isVPNActive() && dicojugar==false){
+            setStatus(Status.Connected);
+            dicojugar=true;
+        }
     }
     
     @Override
@@ -689,6 +717,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         
         if(((Button)v).getText().toString().equalsIgnoreCase(getString(R.string.text_connect))) {
             setStatus(Status.Connecting);
+            dicojugar=false;
 //            m_openvpn = new OpenVPN(m_handler, this);    // new it here, so cancel will not crash.
             String server = getCurrentServer();
             // get session name.
@@ -729,11 +758,18 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         } else
         if(((Button)v).getText().toString().equalsIgnoreCase(getString(R.string.text_disconnect))) {
 //            .disconnect();
+
             if (VpnStatus.isVPNActive() ) {
-                Intent disconnectVPN = new Intent(this, DisconnectVPN.class);
-                startActivity(disconnectVPN);
+                if (mService != null) {
+                    try {
+                        mService.stopVPN(false);
+                    } catch (RemoteException e) {
+                        VpnStatus.logException(e);
+                    }
+                }
             }
                 setStatus(Status.Disconnected);
+            dicojugar=true;
 
             String dura = formatTime(System.currentTimeMillis() - m_date);
             Log.d("ibVPN", "Session Duration: " + dura);
@@ -818,7 +854,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             btnConnect.setEnabled(true);
             btnConnect.setText("Disconnect");
             myToolbar.setTitle("Connected");
-            myToolbar.setBackgroundColor(Color.GREEN);
+            myToolbar.setBackgroundColor(Color.rgb(28,146,29));
             ibVpnLogo.setImageDrawable(getDrawable(R.drawable.icon_connected));
 
 //            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#00FF20>CONNECTED</font><b>  &gt;&gt;&gt;</b>"));
@@ -841,7 +877,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             btnConnect.setEnabled(true);
             btnConnect.setText("Connect");
             myToolbar.setTitle("NOT CONNECTED");
-            myToolbar.setBackgroundColor(Color.RED);
+            myToolbar.setBackgroundColor(Color.rgb(255,0,64));
             ibVpnLogo.setImageDrawable(getDrawable(R.drawable.icon_notconnected));
 
 //            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#FF0000>NOT CONNECTED</font><b>  &gt;&gt;&gt;</b>"));
@@ -968,6 +1004,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 //        }
 //        adapterServer.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
        locationServer.setText(myServer.get(0).toString());
+        lolstring = myServer.get(0).toString();
 //        spinServer.setAdapter(adapterServer);
 //        spinServer.setOnItemSelectedListener(new ServerSelectedListener());
     }

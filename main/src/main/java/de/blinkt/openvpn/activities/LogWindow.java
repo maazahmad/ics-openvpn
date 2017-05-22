@@ -7,8 +7,13 @@ package de.blinkt.openvpn.activities;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
+import de.blinkt.openvpn.ActivityDashboard;
 import de.blinkt.openvpn.R;
 import de.blinkt.openvpn.fragments.LogFragment;
 
@@ -22,6 +27,18 @@ public class LogWindow extends BaseActivity {
         setTheme(R.style.blinkt_lolTheme);
 
         setContentView(R.layout.log_window);
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(myToolbar);
+
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setTitle("Log");
+
+//  getSupportActionBar().setHomeButtonEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
         //// TODO: 5/16/2017
 //        getActionBar().setDisplayHomeAsUpEnabled(true);
 
