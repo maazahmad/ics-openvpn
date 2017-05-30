@@ -1144,24 +1144,43 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             selectItem(position);
+            switch (position) {
+                case 0:
+                    Intent intentS= new Intent(ActivityDashboard.this,ActivitySetting.class);
+                    startActivity(intentS);
+                    break;
+                case 1:
+                    Intent intentL= new Intent(ActivityDashboard.this,LogWindow.class);
+                    startActivity(intentL);
+                case 2:
+//                    Intent intent= new Intent(ActivityDashboard.this,Activity purchase.class);
+//                    startActivity(intent);
+                case 3:
+                    Intent intentLog= new Intent(ActivityDashboard.this,ActivityLogin.class);
+                    startActivity(intentLog);
+                default:
+                    break;
+            }
         }
     }
     private void selectItem(int position) {
-
         Toast.makeText(this.getApplicationContext(), "clicked", Toast.LENGTH_SHORT).show();
+
         // update the main content by replacing fragments
 //        Fragment fragment = new PlanetFragment();
-//        Bundle args = new Bundle();
+        Bundle args = new Bundle();
+        Log.d("args", position+"");
+
 //        args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
 //        fragment.setArguments(args);
-//
+
 //        FragmentManager fragmentManager = getFragmentManager();
 //        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-//
-//        // update selected item and title, then close the drawer
-//        mDrawerList.setItemChecked(position, true);
+
+        // update selected item and title, then close the drawer
+        mDrawerList.setItemChecked(position, true);
 //        setTitle(mPlanetTitles[position]);
-//        mDrawerLayout.closeDrawer(mDrawerList);
+        mDrawerLayout.closeDrawer(mDrawerList);
     }
 
 }

@@ -447,6 +447,15 @@
         <item>Setting</item>
         <item>Connection Status</item>
         <item>Purchase</item>
-        <item>Log Window</item>
+        <item>Log out</item>
     </string-array>
+
+    <string name="text_advanced_setting1">Advanced Settings:</string>
+    <string name="text_advanced_setting2">Choose UDP for faster connection and TCP if UDP is blocked.</string>
+    <string name="text_advanced_setting3">Use default(1195) for best performance. Try 55000 to 65000 ports if default is blocked.</string>
+    <string name="text_port">Port:</string>
+    <string name="text_default_port">1195</string>
+    <string name="text_save">Save</string>
+    <string name="text_prototype">Protocol:</string>
+
 </resources>
