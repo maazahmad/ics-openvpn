@@ -134,7 +134,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     private ViewPager mPager;
 
 
-    private String[] mPlanetTitles;
+    private String[] mDrawerTitles;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
 
@@ -255,6 +255,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         // set theme by code, this will improve the speed.
         setTheme(R.style.blinkt_lolTheme);
         setContentView(R.layout.mydash);
+        mDrawerTitles = getResources().getStringArray(R.array.drawer_array);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
@@ -275,10 +276,10 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         });
 
         // Set the adapter for the list view
-//            mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-//                    R.layout.drawer_list_item, mPlanetTitles));
-        // Set the list's click listener
-//        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+            mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                    R.layout.drawer_list_item, mDrawerTitles));
+//         Set the list's click listener
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 
 //        Log.d("toolbartitle",myToolbar.getTitle().toString());
@@ -1126,6 +1127,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         intent.setAction(Intent.ACTION_MAIN);
         startActivity(intent);
     }
+
     public void gotoMainActivity() {
 //        EditText editUsername, editPassword;
 //        editUsername = (EditText)findViewById(R.id.edit_login_email);
@@ -1138,4 +1140,28 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 //
         startActivity(intent);
     }
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            selectItem(position);
+        }
+    }
+    private void selectItem(int position) {
+
+        Toast.makeText(this.getApplicationContext(), "clicked", Toast.LENGTH_SHORT).show();
+        // update the main content by replacing fragments
+//        Fragment fragment = new PlanetFragment();
+//        Bundle args = new Bundle();
+//        args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
+//        fragment.setArguments(args);
+//
+//        FragmentManager fragmentManager = getFragmentManager();
+//        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+//
+//        // update selected item and title, then close the drawer
+//        mDrawerList.setItemChecked(position, true);
+//        setTitle(mPlanetTitles[position]);
+//        mDrawerLayout.closeDrawer(mDrawerList);
+    }
+
 }
