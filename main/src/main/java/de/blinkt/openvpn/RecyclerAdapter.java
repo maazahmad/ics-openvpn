@@ -13,8 +13,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ServerHolder>{
@@ -26,6 +31,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Server
     public static class ServerHolder extends RecyclerView.ViewHolder{
         //2
         private TextView mItemDate;
+        private ImageView imgViewFlag, imgFavorite;
         private final Activity mActivity;
 
         //        private TextView mItemDescription;
@@ -35,8 +41,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Server
         public ServerHolder(View v, Activity mActivity ) {
             super(v);
             this.mActivity= mActivity;
-             mItemDate = (TextView) v.findViewById(R.id.item_date);
-//            mItemDescription = (TextView) v.findViewById(R.id.item_description);
+            mItemDate = (TextView) v.findViewById(R.id.txtViewCountryName);
+            imgViewFlag = (ImageView) v.findViewById(R.id.imgViewFlag);
+            imgFavorite = (ImageView) v.findViewById(R.id.imgFavorite);
         }
 
         public void bindServer(final String server) {
@@ -56,6 +63,33 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Server
             });
             Log.d("bindServer", server);
 //            mItemDescription.setText(server);
+
+            String[] countryList = mActivity.getResources().getStringArray(R.array.countries_array);
+            Collections.sort(Arrays.asList(countryList), new Comparator<String>(){
+                public int compare(String obj1, String obj2) {
+                    if( obj1.length() > obj2.length() )
+                        return -1;
+                    else if( obj1.length() < obj2.length())
+                        return 1;
+                    else
+                        return 0;
+                }
+            });
+
+            imgViewFlag.setVisibility(View.GONE);
+            for(int i = 0; i < countryList.length; i++){
+                String country = countryList[i];
+                if( server.toLowerCase().contains(country.toLowerCase()) ){
+                    String resourceName = country.toLowerCase().replace(" ", "_");
+
+                    int checkExistence = mActivity.getResources().getIdentifier(resourceName, "drawable", mActivity.getPackageName());
+                    if ( checkExistence != 0 ) {  // the resouce exists...
+                        imgViewFlag.setVisibility(View.VISIBLE);
+                        imgViewFlag.setImageResource(mActivity.getResources().getIdentifier("drawable/" + resourceName, null, mActivity.getPackageName()));
+                    }
+                    break;
+                }
+            }
         }
 
     }

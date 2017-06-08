@@ -6,24 +6,30 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <TextView
-        android:id="@+id/item_date"
-        android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:padding="5dp"
+    >
+    <ImageView
+        android:id="@+id/imgViewFlag"
         android:layout_height="40dp"
-        android:layout_marginTop="8dp"
-        android:background="#f2e8ee"
+        android:layout_width="wrap_content"
+        android:src="@drawable/afghanistan"/>
+    <TextView
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="5dp"
+        android:gravity="center_vertical"
+        android:id="@+id/txtViewCountryName"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
         android:layout_weight="1"
         android:text="Some date"/>
-    <!--<TextView-->
-        <!--android:id="@+id/item_description"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="5dp"-->
-        <!--android:layout_gravity="center|start"-->
-        <!--android:layout_weight="1"-->
-        <!--android:ellipsize="end"-->
-        <!--android:maxLines="5"/>-->
+    <ImageView
+        android:id="@+id/imgFavorite"
+        android:layout_height="30dp"
+        android:layout_width="30dp"
+        android:layout_marginRight="5dp"
+        android:src="@drawable/icon_unfavorite"/>
 </LinearLayout>

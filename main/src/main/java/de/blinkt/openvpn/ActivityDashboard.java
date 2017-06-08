@@ -30,10 +30,11 @@ import android.support.v4n.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -59,7 +60,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import de.blinkt.openvpn.activities.BaseActivity;
-import de.blinkt.openvpn.activities.DisconnectVPN;
 import de.blinkt.openvpn.activities.FileSelect;
 import de.blinkt.openvpn.activities.LogWindow;
 import de.blinkt.openvpn.activities.MainActivity;
@@ -102,7 +102,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     //    private OpenVPN                  m_openvpn;            // handle for openvpn.
     private RemoteAPI                m_remote;
 
-    private Status                   m_status;            // status of current connection.
+    public static Status                   m_status;            // status of current connection.
     private String m_username;
     private String m_password;
     private String m_userid;
@@ -115,7 +115,6 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 
     public static ArrayList<String> myServer;
     public static String lolstring;
-
 
 
 
@@ -134,7 +133,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     private ViewPager mPager;
 
 
-    private String[] mDrawerTitles;
+    private ArrayList<NavDrawerItem> mDrawerTitles;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
 
@@ -146,7 +145,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     private String m_inlineConfig;
     private String mLastStatusMessage;
 
-
+    Toolbar myToolbar;
 
     //added <code></code>
 
@@ -255,29 +254,40 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         // set theme by code, this will improve the speed.
         setTheme(R.style.blinkt_lolTheme);
         setContentView(R.layout.mydash);
-        mDrawerTitles = getResources().getStringArray(R.array.drawer_array);
+
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+        myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
-
         getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setTitle("");
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
         myToolbar.setNavigationIcon(R.drawable.ic_action_menu);
         myToolbar.setNavigationOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                Toast.makeText(ActivityDashboard.this, "Back clicked!",     Toast.LENGTH_SHORT).show();
+                mDrawerLayout.openDrawer(Gravity.LEFT);
+              //  Toast.makeText(ActivityDashboard.this, "Back clicked!",     Toast.LENGTH_SHORT).show();
                 Log.d("Clicked", "drawer open");
             }
         });
 
+
         // Set the adapter for the list view
-            mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                    R.layout.drawer_list_item, mDrawerTitles));
+         //   mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+         //           R.layout.drawer_list_item, mDrawerTitles));
+        mDrawerTitles = new ArrayList<>();
+        mDrawerTitles.add(new NavDrawerItem(R.drawable.ic_action_menu, "Setting"));
+        mDrawerTitles.add(new NavDrawerItem(R.drawable.ic_action_menu, "Connection Status"));
+        mDrawerTitles.add(new NavDrawerItem(R.drawable.ic_action_menu, "Purchase"));
+        mDrawerTitles.add(new NavDrawerItem(R.drawable.ic_action_menu, "Log out"));
+
+
+        mDrawerList.setAdapter(new NavDrawerAdapter (this, R.layout.drawer_list_item, mDrawerTitles));
 //         Set the list's click listener
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
@@ -377,8 +387,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 
         TextView locationServer = (TextView)findViewById(R.id.view_location);
         if (lolstring!= "" && myServer != null) {
-            locationServer.setText(myServer.get(0));
-            lolstring = myServer.get(0);
+            locationServer.setText(lolstring);
         }
         if(VpnStatus.isVPNActive() && dicojugar==false){
             setStatus(Status.Connected);
@@ -829,8 +838,6 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 //        Spinner spinServer = (Spinner)findViewById(R.id.spinner_dashboard_location);
         TextView locationServer = (TextView)findViewById(R.id.view_location);
         ImageView ibVpnLogo = (ImageView)findViewById(R.id.ib_vpn_Con_ic);
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(myToolbar);
 
         
         if(btnConnect == null || myToolbar.getTitle() == null || locationServer == null) {
@@ -1140,6 +1147,49 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 //
         startActivity(intent);
     }
+    public class NavDrawerItem
+    {
+        public int icon;
+        public String name;
+
+        public NavDrawerItem(int icon, String name)
+        {
+            this.icon = icon;
+            this.name = name;
+        }
+    }
+    public class NavDrawerAdapter extends ArrayAdapter<NavDrawerItem>
+    {
+        private final Context context;
+        private final int layoutResourceId;
+        private ArrayList<NavDrawerItem> data = null;
+
+        public NavDrawerAdapter(Context context, int layoutResourceId, ArrayList<NavDrawerItem> data)
+        {
+            super(context, layoutResourceId, data);
+            this.context = context;
+            this.layoutResourceId = layoutResourceId;
+            this.data = data;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent)
+        {
+            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
+
+            View v = inflater.inflate(layoutResourceId, parent, false);
+
+            ImageView imageView = (ImageView) v.findViewById(R.id.navDrawerImageView);
+            TextView textView = (TextView) v.findViewById(R.id.navDrawerTextView);
+
+            NavDrawerItem choice = data.get(position);
+
+            imageView.setImageResource(choice.icon);
+            textView.setText(choice.name);
+
+            return v;
+        }
+    }
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -1152,12 +1202,14 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
                 case 1:
                     Intent intentL= new Intent(ActivityDashboard.this,LogWindow.class);
                     startActivity(intentL);
+                    break;
                 case 2:
-//                    Intent intent= new Intent(ActivityDashboard.this,Activity purchase.class);
-//                    startActivity(intent);
+                    Intent intent= new Intent(ActivityDashboard.this,ActivityInAppPurchase.class);
+                    startActivity(intent);
+                    break;
                 case 3:
-                    Intent intentLog= new Intent(ActivityDashboard.this,ActivityLogin.class);
-                    startActivity(intentLog);
+                    finish();
+                    break;
                 default:
                     break;
             }

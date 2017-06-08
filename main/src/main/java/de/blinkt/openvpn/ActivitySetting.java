@@ -5,7 +5,6 @@
 
 package de.blinkt.openvpn;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -17,8 +16,6 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.support.v7.widget.Toolbar;
-
 
 import org.json.JSONObject;
 
@@ -27,10 +24,12 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import de.blinkt.openvpn.activities.BaseActivity;
+
 //import com.mixpanel.android.mpmetrics.MixpanelAPI;
 
 
-public class ActivitySetting extends Activity {
+public class ActivitySetting extends BaseActivity {
     private Properties m_prop;
     
     protected static final String MIXPANEL_TOKEN = "807d7275a563b23cd31b0aad50e63f4f";
@@ -57,7 +56,11 @@ public class ActivitySetting extends Activity {
         setTheme(R.style.blinkt_lolTheme);
         setContentView(R.layout.setting);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(myToolbar);
 
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setTitle("Settings");
 
 
         setupSpinnerProto();

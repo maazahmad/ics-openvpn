@@ -8,59 +8,43 @@ package de.blinkt.openvpn;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.net.VpnService;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v4n.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.Html;
-import android.text.method.LinkMovementMethod;
+import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.Menu;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Properties;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import de.blinkt.openvpn.activities.BaseActivity;
 import de.blinkt.openvpn.activities.FileSelect;
-import de.blinkt.openvpn.activities.LogWindow;
-import de.blinkt.openvpn.activities.MainActivity;
-import de.blinkt.openvpn.core.ConfigParser;
-import de.blinkt.openvpn.core.ConnectionStatus;
-import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.ProfileManager;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.views.ScreenSlidePagerAdapter;
@@ -76,11 +60,15 @@ public class ActivityServerList extends BaseActivity  {
     private static final int IMPORT_PROFILE = 231;
     private static final int FILE_PICKER_RESULT_KITKAT = 392;
 
-    private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
-    private RecyclerAdapter mAdapter;
 
+    private LinearLayout linearSelectedServer, linearFavorites, linearAvailableServers;
+    String[] countryList;
     private ArrayList<String> mServerList;
+    public  SharedPreferences spGlobal;
+    public  SharedPreferences.Editor edGlobal;
+    EditText edt_search_key;
+
 
 
 
@@ -177,14 +165,13 @@ public class ActivityServerList extends BaseActivity  {
         super.onCreate(savedInstanceState);
         setTheme(R.style.blinkt_lolTheme);
         setContentView(R.layout.servers);
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+
+        linearSelectedServer = (LinearLayout)findViewById(R.id.linearSelectedServer);
+        linearFavorites = (LinearLayout)findViewById(R.id.linearFavorites);
+        linearAvailableServers = (LinearLayout)findViewById(R.id.linearAvailableServer);
+        edt_search_key = (EditText)findViewById(R.id.edt_search_key);
+
         mLinearLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mAdapter = new RecyclerAdapter(mServerList,this);
-
-        Log.d("Recycle Adapter",  "Count"+mAdapter.getItemCount()+"");
-
-        mRecyclerView.setAdapter(mAdapter);
 
 
 
@@ -203,6 +190,7 @@ public class ActivityServerList extends BaseActivity  {
             public void onClick(View view) {
                 Toast.makeText(ActivityServerList.this, "Back clicked!",     Toast.LENGTH_SHORT).show();
                 Log.d("Clicked", "drawer open");
+                finish();
             }
         });
 
@@ -217,13 +205,36 @@ public class ActivityServerList extends BaseActivity  {
             m_handler.setContext(this);
         m_remote = new RemoteAPI(this, m_handler);
         m_timer = new Timer();
-        
+
         setStatus(Status.Disconnected);
-        
+
+
+        mServerList = new ArrayList<>();
+        mServerList.addAll(ActivityDashboard.myServer);
+        spGlobal = getSharedPreferences("user_info", 0);
+        edGlobal = spGlobal.edit();
+        makeServerList();
+
+        edt_search_key.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+                searchServer(edt_search_key.getText().toString());
+            }
+        });
 
 
     }
-    
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -241,28 +252,28 @@ public class ActivityServerList extends BaseActivity  {
         Log.i("ibVPN", "onPause ServerList.");
         super.onPause();
     }
-    
+
     @Override
     public void onResume() {
         Log.i("ibVPN", "onResume ServerList.");
         super.onResume();
     }
-    
+
     @Override
     public void onDestroy() {
         Log.i("ibVPN", "onDestroy ServerList.");
         super.onDestroy();
     }
-    
+
     @Override
     public void onBackPressed() {
-        if(m_status == Status.Connecting 
-        || m_status == Status.Connected) {
+        if(m_status == Status.Connecting
+                || m_status == Status.Connected) {
             return;
         }
         super.onBackPressed();
     }
-    
+
 
 
 
@@ -296,25 +307,25 @@ public class ActivityServerList extends BaseActivity  {
     }
 
 
-    
+
     public static boolean isInternetAvailable(Context context) {
         ConnectivityManager cm = (ConnectivityManager)context
-            .getSystemService(Context.CONNECTIVITY_SERVICE);
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
         if(cm == null)
             return false;
 
         NetworkInfo[] info = cm.getAllNetworkInfo();
         if(info == null)
             return false;
-        
-        for(int i = 0; i < info.length; i++) {   
-        if (info[i].getState() == NetworkInfo.State.CONNECTED)
-            return true;   
+
+        for(int i = 0; i < info.length; i++) {
+            if (info[i].getState() == NetworkInfo.State.CONNECTED)
+                return true;
         }
-        
+
         return false;
     }
-    
+
 
 
 
@@ -324,51 +335,274 @@ public class ActivityServerList extends BaseActivity  {
         Spinner spinPackage = (Spinner)findViewById(R.id.spinner_dashboard_package);
         Spinner spinServer = (Spinner)findViewById(R.id.spinner_dashboard_location);
         if(btnConnect == null || textStatus == null
-        || spinPackage == null || spinServer == null) {
+                || spinPackage == null || spinServer == null) {
             Log.e("ibVPN", "at least one item do not exist.");
             return;
         }
-            
+
         m_status = status;
         switch(m_status) {
-        case Connecting: {
-            spinPackage.setEnabled(false);
-            spinServer.setEnabled(false);
-            btnConnect.setEnabled(true);
-            btnConnect.setText(R.string.text_cancel);
-            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#fdbb2f>CONNECTING...</font><b>  &gt;&gt;&gt;</b>"));
-            break; }
+            case Connecting: {
+                spinPackage.setEnabled(false);
+                spinServer.setEnabled(false);
+                btnConnect.setEnabled(true);
+                btnConnect.setText(R.string.text_cancel);
+                textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#fdbb2f>CONNECTING...</font><b>  &gt;&gt;&gt;</b>"));
+                break; }
 
-        case Connected: {
-            spinPackage.setEnabled(false);
-            spinServer.setEnabled(false);
-            btnConnect.setEnabled(true);
-            btnConnect.setText("Disconnect");
-            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#00FF20>CONNECTED</font><b>  &gt;&gt;&gt;</b>"));
-            break; }
+            case Connected: {
+                spinPackage.setEnabled(false);
+                spinServer.setEnabled(false);
+                btnConnect.setEnabled(true);
+                btnConnect.setText("Disconnect");
+                textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#00FF20>CONNECTED</font><b>  &gt;&gt;&gt;</b>"));
+                break; }
 
-        case Disconnecting: {
-            spinPackage.setEnabled(false);
-            spinServer.setEnabled(false);
-            btnConnect.setEnabled(false);
-            btnConnect.setText("Disconnect");
-            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#FF0000>DISCONNECTING...</font><b>  &gt;&gt;&gt;</b>"));
-            break; }
+            case Disconnecting: {
+                spinPackage.setEnabled(false);
+                spinServer.setEnabled(false);
+                btnConnect.setEnabled(false);
+                btnConnect.setText("Disconnect");
+                textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#FF0000>DISCONNECTING...</font><b>  &gt;&gt;&gt;</b>"));
+                break; }
 
-        case Disconnected: {
-            spinPackage.setEnabled(true);
-            spinServer.setEnabled(true);
-            btnConnect.setEnabled(true);
-            btnConnect.setText("Connect");
-            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#FF0000>NOT CONNECTED</font><b>  &gt;&gt;&gt;</b>"));
-            break; }
+            case Disconnected: {
+                spinPackage.setEnabled(true);
+                spinServer.setEnabled(true);
+                btnConnect.setEnabled(true);
+                btnConnect.setText("Connect");
+                textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#FF0000>NOT CONNECTED</font><b>  &gt;&gt;&gt;</b>"));
+                break; }
 
-        default:
-            Log.e("ibVPN", "no such status.");
-            return;
+            default:
+                Log.e("ibVPN", "no such status.");
+                return;
         }
     }
 
+    private void getCountryList(){
+        countryList = getResources().getStringArray(R.array.countries_array);
+        Collections.sort(Arrays.asList(countryList), new Comparator<String>(){
+            public int compare(String obj1, String obj2) {
+                if( obj1.length() > obj2.length() )
+                    return -1;
+                else if( obj1.length() < obj2.length())
+                    return 1;
+                else
+                    return 0;
+            }
+        });
+    }
+    private void makeServerList(){
+
+
+        getCountryList();
+
+        makeSelectedServer();
+        makeFavoriteServer();
+        makeAvaiableServer();
+    }
+    private void refreshFavoriteAvailable(){
+        makeFavoriteServer();
+        makeAvaiableServer();
+    }
+    private void makeSelectedServer(){
+        linearSelectedServer.removeAllViews();
+        View viewSelectedServer = LayoutInflater.from(this).inflate(R.layout.item_selected_server, linearSelectedServer, false);
+        ImageView imgViewFlag = (ImageView)viewSelectedServer.findViewById(R.id.imgViewFlag);
+        TextView txtCountry = (TextView)viewSelectedServer.findViewById(R.id.txtViewCountryName);
+
+
+        imgViewFlag.setVisibility(View.GONE);
+        for(int i = 0; i < countryList.length; i++){
+            String country = countryList[i];
+            if( ActivityDashboard.lolstring.toLowerCase().contains(country.toLowerCase()) ){
+                String resourceName = country.toLowerCase().replace(" ", "_");
+
+                int checkExistence = getResources().getIdentifier(resourceName, "drawable", getPackageName());
+                if ( checkExistence != 0 ) {  // the resouce exists...
+                    imgViewFlag.setVisibility(View.VISIBLE);
+                    imgViewFlag.setImageResource(getResources().getIdentifier("drawable/" + resourceName, null, getPackageName()));
+                }
+                break;
+            }
+        }
+        txtCountry.setText(ActivityDashboard.lolstring);
+        linearSelectedServer.addView(viewSelectedServer);
+    }
+    private void makeFavoriteServer(){
+        linearFavorites.removeAllViews();
+
+        for(int i = 0; i < mServerList.size(); i++){
+            final String server = mServerList.get(i);
+
+            if( spGlobal.getBoolean(server, false) ) {
+                final View viewItem = LayoutInflater.from(this).inflate(R.layout.itemserver, linearSelectedServer, false);
+                ImageView imgViewFlag = (ImageView) viewItem.findViewById(R.id.imgViewFlag);
+                TextView txtCountry = (TextView) viewItem.findViewById(R.id.txtViewCountryName);
+                ImageView imgFavorite = (ImageView) viewItem.findViewById(R.id.imgFavorite);
+
+                imgFavorite.setImageResource(getResources().getIdentifier("drawable/icon_favorite", null, getPackageName()));
+                imgViewFlag.setVisibility(View.GONE);
+                for (int j = 0; j < countryList.length; j++) {
+                    String country = countryList[j];
+                    if (server.toLowerCase().contains(country.toLowerCase())) {
+                        String resourceName = country.toLowerCase().replace(" ", "_");
+
+                        int checkExistence = getResources().getIdentifier(resourceName, "drawable", getPackageName());
+                        if (checkExistence != 0) {  // the resouce exists...
+                            imgViewFlag.setVisibility(View.VISIBLE);
+                            imgViewFlag.setImageResource(getResources().getIdentifier("drawable/" + resourceName, null, getPackageName()));
+                        }
+                        break;
+                    }
+                }
+                txtCountry.setText(server);
+
+                imgFavorite.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        edGlobal.putBoolean(server, false);
+                        edGlobal.commit();
+                        linearFavorites.removeView(viewItem);
+                        makeAvaiableServer();
+                    }
+                });
+
+                txtCountry.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(VpnStatus.isVPNActive() && ActivityDashboard.m_status.equals(Status.Connected) ) {
+                            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which){
+                                        case DialogInterface.BUTTON_POSITIVE:
+                                            dialog.dismiss();
+                                            ActivityDashboard.lolstring = server;
+                                            finish();
+                                            break;
+
+                                        case DialogInterface.BUTTON_NEGATIVE:
+                                            dialog.dismiss();
+                                            break;
+                                    }
+                                }
+                            };
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(ActivityServerList.this);
+                            builder.setMessage("Currently connected to another VPN server. Are you sure you want to change the server?").setPositiveButton("Yes", dialogClickListener)
+                                    .setNegativeButton("No", dialogClickListener).show();
+                        }else{
+                            ActivityDashboard.lolstring = server;
+                            finish();
+                        }
+                    }
+                });
+                linearFavorites.addView(viewItem);
+            }
+        }
+    }
+    private void makeAvaiableServer(){
+        linearAvailableServers.removeAllViews();
+
+        for(int i = 0; i < mServerList.size(); i++){
+            final String server = mServerList.get(i);
+
+
+            View viewItem = LayoutInflater.from(this).inflate(R.layout.itemserver, linearSelectedServer, false);
+            ImageView imgViewFlag = (ImageView) viewItem.findViewById(R.id.imgViewFlag);
+            TextView txtCountry = (TextView) viewItem.findViewById(R.id.txtViewCountryName);
+            final ImageView imgFavorite = (ImageView) viewItem.findViewById(R.id.imgFavorite);
+
+            if( !spGlobal.getBoolean(server, false) ) {
+                imgFavorite.setImageResource(getResources().getIdentifier("drawable/icon_unfavorite", null, getPackageName()));
+                imgFavorite.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        edGlobal.putBoolean(server, true);
+                        edGlobal.commit();
+                        imgFavorite.setImageResource(getResources().getIdentifier("drawable/icon_favorite", null, getPackageName()));
+                        makeFavoriteServer();
+                    }
+                });
+            }else{
+                imgFavorite.setImageResource(getResources().getIdentifier("drawable/icon_favorite", null, getPackageName()));
+                imgFavorite.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        edGlobal.putBoolean(server, false);
+                        edGlobal.commit();
+                        imgFavorite.setImageResource(getResources().getIdentifier("drawable/icon_unfavorite", null, getPackageName()));
+                        makeFavoriteServer();
+                    }
+                });
+            }
+            imgViewFlag.setVisibility(View.GONE);
+            for (int j = 0; j < countryList.length; j++) {
+                String country = countryList[j];
+                if (server.toLowerCase().contains(country.toLowerCase())) {
+                    String resourceName = country.toLowerCase().replace(" ", "_");
+
+                    int checkExistence = getResources().getIdentifier(resourceName, "drawable", getPackageName());
+                    if (checkExistence != 0) {  // the resouce exists...
+                        imgViewFlag.setVisibility(View.VISIBLE);
+                        imgViewFlag.setImageResource(getResources().getIdentifier("drawable/" + resourceName, null, getPackageName()));
+                    }
+                    break;
+                }
+            }
+            txtCountry.setText(server);
+
+            txtCountry.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(VpnStatus.isVPNActive() && ActivityDashboard.m_status.equals(Status.Connected) ) {
+                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which){
+                                    case DialogInterface.BUTTON_POSITIVE:
+                                        dialog.dismiss();
+                                        ActivityDashboard.lolstring = server;
+                                        finish();
+                                        break;
+
+                                    case DialogInterface.BUTTON_NEGATIVE:
+                                        dialog.dismiss();
+                                        break;
+                                }
+                            }
+                        };
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(ActivityServerList.this);
+                        builder.setMessage("Currently connected to another VPN server. Are you sure you want to change the server?").setPositiveButton("Yes", dialogClickListener)
+                                .setNegativeButton("No", dialogClickListener).show();
+                    }else{
+                        ActivityDashboard.lolstring = server;
+                        finish();
+                    }
+                }
+            });
+            linearAvailableServers.addView(viewItem);
+
+        }
+    }
+
+    private void searchServer(String key){
+        mServerList.clear();
+        if( key.length() == 0 ){
+            mServerList.addAll(ActivityDashboard.myServer);
+        }else {
+            for (int i = 0; i < ActivityDashboard.myServer.size(); i++) {
+                if( ActivityDashboard.myServer.get(i).toLowerCase().contains(key.toLowerCase()) ){
+                    mServerList.add(ActivityDashboard.myServer.get(i));
+                }
+            }
+        }
+        makeFavoriteServer();
+        makeAvaiableServer();
+    }
 
 
 }
