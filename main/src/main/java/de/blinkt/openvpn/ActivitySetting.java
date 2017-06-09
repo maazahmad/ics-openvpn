@@ -119,13 +119,13 @@ public class ActivitySetting extends BaseActivity {
         String oldport = m_prop.getProperty("PORT");
         try {
             int port = Integer.parseInt(editPort.getText().toString());
-            if(port != 1195 && !(port >= 55000 && port <= 65000)) {
-                Toast toast = Toast.makeText(this, "Port should be 1195 or between 55000 to 65000.", Toast.LENGTH_LONG);
+            if(port != 1197 && port != 1196) {
+                Toast toast = Toast.makeText(this, "Port should be 1195 or 1196.", Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.CENTER, 0, 0);
             	toast.show();
             	
                 JSONObject props = new JSONObject();
-                props.put("Error Type", "Port should be 1195 or between 55000 to 65000.");
+                props.put("Error Type", "Port should be 1196 or 1197");
                 //mixpanelTrack("Error Message at Adv. Settings", props);
                 return;
             }
