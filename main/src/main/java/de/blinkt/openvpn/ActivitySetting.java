@@ -94,6 +94,7 @@ public class ActivitySetting extends BaseActivity {
     protected void setupSpinnerProto()
     {
         Spinner spinProto = (Spinner)findViewById(R.id.spinner_setting_prototype);
+        final EditText editPort = (EditText)findViewById(R.id.edit_setting_port);
         ArrayList<String> aProto = new ArrayList<String>();
         aProto.add("UDP");
         aProto.add("TCP");
@@ -104,7 +105,19 @@ public class ActivitySetting extends BaseActivity {
         class ProtoSelectedListener implements OnItemSelectedListener {
             public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 Log.d("ibVPN", "Protocol Selected:" + String.valueOf(arg2));
-            }  
+                switch (arg2){
+
+                    case 0 :{
+                        editPort.setText("1196");
+                        break;
+                    }
+                    case  1:{
+                        editPort.setText("1197");
+                        break;
+                    }
+                }
+
+            }
             public void onNothingSelected(AdapterView<?> arg0) {
             }  
         }
@@ -119,13 +132,13 @@ public class ActivitySetting extends BaseActivity {
         String oldport = m_prop.getProperty("PORT");
         try {
             int port = Integer.parseInt(editPort.getText().toString());
-            if(port != 1197 && port != 1196) {
-                Toast toast = Toast.makeText(this, "Port should be 1195 or 1196.", Toast.LENGTH_LONG);
+            if(port != 1197 && port != 1196 && !(port >= 55000 && port <= 65000)) {
+                Toast toast = Toast.makeText(this, "Port should be 1196, 1197 or between 55000 to 65000.", Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.CENTER, 0, 0);
             	toast.show();
             	
                 JSONObject props = new JSONObject();
-                props.put("Error Type", "Port should be 1196 or 1197");
+                props.put("Error Type", "Port should be 1196, 1197 or between 55000 to 65000.");
                 //mixpanelTrack("Error Message at Adv. Settings", props);
                 return;
             }
