@@ -238,7 +238,7 @@ public class LaunchVPN extends Activity {
                     boolean showLogWindow = prefs.getBoolean("showlogwindow", true);
 
                     if (!mhideLog && showLogWindow)
-                        showLogWindow();
+//                        showLogWindow();
                     ProfileManager.updateLRU(this, mSelectedProfile);
                     VPNLaunchHelper.startOpenVpn(mSelectedProfile, getBaseContext());
                     finish();

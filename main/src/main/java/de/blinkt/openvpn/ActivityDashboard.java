@@ -69,6 +69,7 @@ import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.ProfileManager;
+import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.views.ScreenSlidePagerAdapter;
 
@@ -156,17 +157,23 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             @Override
             public void run() {
 
-                mLastStatusMessage = VpnStatus.getLastCleanLogMessage(getParent());
+                mLastStatusMessage = VpnStatus.getLastCleanLogMessage(getApplicationContext());
+                if (state.equals("CONNECTED"))
+                {
+                    setStatus(Status.Connected);
+                    Log.d("state", "Change");
 
-//                mArrayadapter.notifyDataSetChanged();
-//                setStatus(Status.Connected);
+                }
+
+
+
                Log.d("state", state.toString());
             }
         });
     }
     @Override
     public void setConnectedVPN(String uuid) {
-        Log.d("state", "setConnectedVPB");
+
 
 
     }
@@ -179,6 +186,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
                                        IBinder service) {
 
             mService = IOpenVPNServiceInternal.Stub.asInterface(service);
+
         }
 
         @Override
@@ -265,7 +273,6 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
         myToolbar.setNavigationIcon(R.drawable.ic_action_menu);
         myToolbar.setNavigationOnClickListener(new View.OnClickListener(){
             @Override
@@ -325,6 +332,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         m_waitdlg = ProgressDialog.show(this, "Loading Servers", "Waiting for server reply...", true, false);
         
         TextView view2 = (TextView)findViewById(R.id.textview_serverlist);
+        VpnStatus.addStateListener(this);
 
         // start internet checker timer, will not stop this.
 
@@ -389,10 +397,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         if (lolstring!= "" && myServer != null) {
             locationServer.setText(lolstring);
         }
-        if(VpnStatus.isVPNActive() && dicojugar==false){
-            setStatus(Status.Connected);
-            dicojugar=true;
-        }
+//        po
     }
     
     @Override
@@ -471,7 +476,8 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             }
             break; }
 
-//            case OpenVPNService.MessageType: {
+
+//            case VpnStatus.StateListener: {
 //                    String log = data.getString("log");
 //                    if(log == null)
 //                        return;
@@ -539,6 +545,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             Log.d("ibVPN", "Message From Unknown Thread. :)");
             break; }
         }
+
     }
 
 
@@ -740,9 +747,9 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             String proto = getProperty("PROTOCOL");
 
             setLogin(m_username, m_password);
-            setRemote(server, port == null ? "1195" : port);
+            setRemote(server, port == null ? "1197" : port);
             setSession(session);
-            setProtocol(proto == null ? "udp" : proto);
+            setProtocol(proto == null ? "tcp" : proto);
 
 //            m_openvpn.connect();    // start the service, but it is not connected.
 
@@ -757,6 +764,9 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             m_manager.saveProfileList(this);
 
 //            gotoMainActivity();
+//            ProfileManager.updateLRU(this, m_vpnprofile);
+//            VPNLaunchHelper.startOpenVpn(m_vpnprofile, getBaseContext());
+
             startVPN(m_vpnprofile);
 //            permissionConnect();
             m_date = System.currentTimeMillis();
@@ -853,6 +863,12 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             btnConnect.setEnabled(true);
             btnConnect.setText(R.string.text_cancel);
             myToolbar.setTitle("Connecting");
+            if (VpnStatus.isVPNActive())
+            {
+                Toast.makeText(this,"COnnection established",Toast.LENGTH_LONG);
+            }
+            Log.d("mservice",mService.toString());
+
 //            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#fdbb2f>CONNECTING...</font><b>  &gt;&gt;&gt;</b>"));
             break; }
             
@@ -863,7 +879,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             btnConnect.setText("Disconnect");
             myToolbar.setTitle("Connected");
             myToolbar.setBackgroundColor(Color.rgb(28,146,29));
-            ibVpnLogo.setImageDrawable(getDrawable(R.drawable.icon_connected));
+           ibVpnLogo.setImageDrawable(getDrawable(R.drawable.icon_connected));
 
 //            textStatus.setText(Html.fromHtml("<font color=#FFFFFF>Status: </font><font color=#00FF20>CONNECTED</font><b>  &gt;&gt;&gt;</b>"));
             break; }
@@ -1233,6 +1249,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         mDrawerList.setItemChecked(position, true);
 //        setTitle(mPlanetTitles[position]);
         mDrawerLayout.closeDrawer(mDrawerList);
+
     }
 
 }
