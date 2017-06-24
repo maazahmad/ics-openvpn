@@ -25,9 +25,9 @@ import org.json.JSONObject;
 public class RemoteAPI {
     public static final int    MessageType = 0x10001;
     
-    private static final String ApiKey = "e9102f361570f02e9b3bc338bb25ec9b";
-    private static final String Url1 = "https://api.ibvpn.net/android/v3/";
-    private static final String Url2 = "https://monitor.amplusnet.ro/api/android/redirect-v3.php";
+    private static final String ApiKey = "52f4d13c50ed520227ad198f1ccbcd58";
+    private static final String Url1 = "https://api.ibvpn.net/android/v4/";
+    private static final String Url2 = "https://monitor.amplusnet.ro/api/android/redirect-v4.php";
     private static String Url = Url2;       // default use url2 for no login function.
     
     private Handler m_handler;
