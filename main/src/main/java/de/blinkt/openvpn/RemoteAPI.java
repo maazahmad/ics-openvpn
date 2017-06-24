@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -641,7 +642,14 @@ public class RemoteAPI {
     }
     
     private String getDeviceId() {
-        TelephonyManager t=(TelephonyManager)m_context.getSystemService(Context.TELEPHONY_SERVICE);
-        return t.getDeviceId();
+        String res = "";
+        res = Settings.Secure.getString(m_context.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+        if( res != null )   return res;
+
+        TelephonyManager telephonyManager = (TelephonyManager)m_context.getSystemService(Context.TELEPHONY_SERVICE);
+        res = telephonyManager.getDeviceId();
+        if( res != null )   return res;
+        return "";
     }
 }

@@ -87,7 +87,8 @@
                 android:layout_gravity="center"
                 android:text="Select Another Server"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColorLink="#FFFFFF" />
+                android:textColor="@color/green"
+                android:textColorLink="@color/green" />
 
             </LinearLayout>
 
@@ -113,6 +114,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
+        android:textColor="@color/green"
         android:textColorLink="@color/green"
         android:textSize="16sp"
         />

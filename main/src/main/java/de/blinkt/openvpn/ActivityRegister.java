@@ -109,7 +109,7 @@ public class ActivityRegister extends Activity {
 	Account account = getAccount(accountManager);
 
 	if (account == null) {
-		return "-";
+		return "";
 	} else {
 		return account.name;
 	}
@@ -163,7 +163,7 @@ private static Account getAccount(AccountManager accountManager) {
             return;
         }
         
-        if(m_waitdlg != null && m_waitdlg.isShowing())
+        //if(m_waitdlg != null && m_waitdlg.isShowing())
         m_waitdlg = ProgressDialog.show(this, "Validating account ...", "Waiting for server reply...", true, false);
         
         // call json api to register this user.

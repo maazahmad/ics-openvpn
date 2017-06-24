@@ -17,6 +17,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.RemoteException;
 import android.support.v4n.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -472,7 +473,55 @@ public class ActivityServerList extends BaseActivity  {
                 txtCountry.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(VpnStatus.isVPNActive() && ActivityDashboard.m_status.equals(Status.Connected) ) {
+                        if( (ActivityDashboard.m_status == ActivityDashboard.Status.Connected) ||
+                                (ActivityDashboard.m_status == ActivityDashboard.Status.Connecting) ){
+                            if( ActivityDashboard.lolstring.equals(server) ){
+
+                            }else{
+                                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        switch (which){
+                                            case DialogInterface.BUTTON_POSITIVE:
+                                                dialog.dismiss();
+                                                ActivityDashboard.lolstring = server;
+
+                                                if (VpnStatus.isVPNActive() ) {
+
+                                                    if (ActivityDashboard.mService != null) {
+                                                        try {
+                                                            ActivityDashboard.mService.stopVPN(false);
+                                                        } catch (RemoteException e) {
+                                                            VpnStatus.logException(e);
+                                                        }
+                                                    }
+                                                }
+                                                ActivityDashboard.DISCONNECT_VPN_SERVERLIST = 1;
+                                                finish();
+                                                break;
+
+                                            case DialogInterface.BUTTON_NEGATIVE:
+                                                dialog.dismiss();
+                                                break;
+                                        }
+                                    }
+                                };
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(ActivityServerList.this);
+                                if( (ActivityDashboard.m_status == ActivityDashboard.Status.Connecting) ){
+                                    builder.setMessage("Currently connecting to another VPN server. Are you sure you want to change the server?").setPositiveButton("Yes", dialogClickListener)
+                                            .setNegativeButton("No", dialogClickListener).show();
+                                }else
+                                {
+                                    builder.setMessage("Currently connected to another VPN server. Are you sure you want to change the server?").setPositiveButton("Yes", dialogClickListener)
+                                            .setNegativeButton("No", dialogClickListener).show();
+                                }
+                            }
+                        }else{
+                            ActivityDashboard.lolstring = server;
+                            finish();
+                        }
+                       /* if(VpnStatus.isVPNActive() && ActivityDashboard.m_status.equals(Status.Connected) ) {
                             DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -496,7 +545,7 @@ public class ActivityServerList extends BaseActivity  {
                         }else{
                             ActivityDashboard.lolstring = server;
                             finish();
-                        }
+                        }*/
                     }
                 });
                 linearFavorites.addView(viewItem);
@@ -557,7 +606,56 @@ public class ActivityServerList extends BaseActivity  {
             txtCountry.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(VpnStatus.isVPNActive() && ActivityDashboard.m_status.equals(Status.Connected) ) {
+
+                    if( (ActivityDashboard.m_status == ActivityDashboard.Status.Connected) ||
+                            (ActivityDashboard.m_status == ActivityDashboard.Status.Connecting) ){
+                        if( ActivityDashboard.lolstring.equals(server) ){
+
+                        }else{
+                            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which){
+                                        case DialogInterface.BUTTON_POSITIVE:
+                                            dialog.dismiss();
+                                            ActivityDashboard.lolstring = server;
+
+                                            if (VpnStatus.isVPNActive() ) {
+
+                                                if (ActivityDashboard.mService != null) {
+                                                    try {
+                                                        ActivityDashboard.mService.stopVPN(false);
+                                                    } catch (RemoteException e) {
+                                                        VpnStatus.logException(e);
+                                                    }
+                                                }
+                                            }
+                                            ActivityDashboard.DISCONNECT_VPN_SERVERLIST = 1;
+                                            finish();
+                                            break;
+
+                                        case DialogInterface.BUTTON_NEGATIVE:
+                                            dialog.dismiss();
+                                            break;
+                                    }
+                                }
+                            };
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(ActivityServerList.this);
+                            if( (ActivityDashboard.m_status == ActivityDashboard.Status.Connecting) ){
+                                builder.setMessage("Currently connecting to another VPN server. Are you sure you want to change the server?").setPositiveButton("Yes", dialogClickListener)
+                                        .setNegativeButton("No", dialogClickListener).show();
+                            }else
+                            {
+                                builder.setMessage("Currently connected to another VPN server. Are you sure you want to change the server?").setPositiveButton("Yes", dialogClickListener)
+                                        .setNegativeButton("No", dialogClickListener).show();
+                            }
+                        }
+                    }else{
+                        ActivityDashboard.lolstring = server;
+                        finish();
+                    }
+                    /*if(VpnStatus.isVPNActive() && ActivityDashboard.m_status.equals(Status.Connected) ) {
                         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -581,7 +679,7 @@ public class ActivityServerList extends BaseActivity  {
                     }else{
                         ActivityDashboard.lolstring = server;
                         finish();
-                    }
+                    }*/
                 }
             });
             linearAvailableServers.addView(viewItem);

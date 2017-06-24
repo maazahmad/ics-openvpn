@@ -438,7 +438,7 @@
     <string name="text_forgetpass"><a href="https://www.ibvpn.com/billing/pwreset.php">Forgot Password?</a></string>
     <string name="text_register_3"><a href="https://www.ibvpn.com/terms-of-service/">Terms of Service</a></string>
     <string name="text_version">Version: 0.0.1</string>
-    <string name="text_register_1">START A 6-HOUR FREE TRIAL</string>
+    <string name="text_register_1">START A 24-HOUR FREE TRIAL</string>
     <string name="text_register_2">BY CREATING AN ACCOUNT, \n YOU ARE AGREEING TO OUR TERMS OF SERVICE</string>
     <string name="text_email">Email</string>
     <string name="text_password">Password</string>

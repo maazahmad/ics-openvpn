@@ -69,7 +69,6 @@ import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.Preferences;
 import de.blinkt.openvpn.core.ProfileManager;
-import de.blinkt.openvpn.core.VPNLaunchHelper;
 import de.blinkt.openvpn.core.VpnStatus;
 import de.blinkt.openvpn.views.ScreenSlidePagerAdapter;
 
@@ -92,9 +91,11 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     private static final int MENU_IMPORT_PROFILE = Menu.FIRST + 1;
     private static final int MENU_CHANGE_SORTING = Menu.FIRST + 2;
     private static final String PREF_SORT_BY_LRU = "sortProfilesByLRU";
+
+    public static int DISCONNECT_VPN_SERVERLIST = -1;
 //    private String mLastStatusMessage;
     private  boolean dicojugar =true;
-    private IOpenVPNServiceInternal mService;
+    public static IOpenVPNServiceInternal mService;
 
 
 
@@ -200,7 +201,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     // added code
 
 
-    enum Status {
+    public  enum Status {
         Connecting,
         Connected,
         Disconnecting,
@@ -397,6 +398,11 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         if (lolstring!= "" && myServer != null) {
             locationServer.setText(lolstring);
         }
+        if (DISCONNECT_VPN_SERVERLIST == 1 && !VpnStatus.isVPNActive() ){
+            DISCONNECT_VPN_SERVERLIST = -1;
+            setStatus(Status.Disconnected);
+        }
+
 //        po
     }
     
@@ -517,6 +523,16 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
                 case AlertDialog.BUTTON_NEGATIVE: {
                     break; }
                 case AlertDialog.BUTTON_NEUTRAL: {
+                    if (VpnStatus.isVPNActive() ) {
+                        if (mService != null) {
+                            try {
+                                mService.stopVPN(false);
+                            } catch (RemoteException e) {
+                                VpnStatus.logException(e);
+                            }
+                        }
+                    }
+                    setStatus(Status.Disconnected);
                     finish();
                     break; }
                 }
@@ -773,6 +789,15 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         } else
         if(((Button)v).getText().toString().equalsIgnoreCase(getString(R.string.text_cancel))) {
 //            m_openvpn.cancel();
+            if (VpnStatus.isVPNActive() ) {
+                if (mService != null) {
+                    try {
+                        mService.stopVPN(false);
+                    } catch (RemoteException e) {
+                        VpnStatus.logException(e);
+                    }
+                }
+            }
             setStatus(Status.Disconnected);
             //mixpanelTrack("Cancel Connection", null);
         } else
@@ -865,7 +890,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             myToolbar.setTitle("Connecting");
             if (VpnStatus.isVPNActive())
             {
-                Toast.makeText(this,"COnnection established",Toast.LENGTH_LONG);
+                Toast.makeText(this,"Connection established",Toast.LENGTH_LONG);
             }
             Log.d("mservice",mService.toString());
 
@@ -1232,7 +1257,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         }
     }
     private void selectItem(int position) {
-        Toast.makeText(this.getApplicationContext(), "clicked", Toast.LENGTH_SHORT).show();
+       // Toast.makeText(this.getApplicationContext(), "clicked", Toast.LENGTH_SHORT).show();
 
         // update the main content by replacing fragments
 //        Fragment fragment = new PlanetFragment();
