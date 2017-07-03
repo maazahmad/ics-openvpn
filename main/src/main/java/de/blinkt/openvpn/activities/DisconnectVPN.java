@@ -15,6 +15,7 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import de.blinkt.openvpn.ActivityDashboard;
 import de.blinkt.openvpn.LaunchVPN;
 import de.blinkt.openvpn.R;
 import de.blinkt.openvpn.core.IOpenVPNServiceInternal;
@@ -83,6 +84,7 @@ public class DisconnectVPN extends Activity implements DialogInterface.OnClickLi
                     VpnStatus.logException(e);
                 }
             }
+            ActivityDashboard.DISCONNECT_VPN_SERVERLIST = 2;
         } else if (which == DialogInterface.BUTTON_NEUTRAL) {
             Intent intent = new Intent(this, LaunchVPN.class);
             intent.putExtra(LaunchVPN.EXTRA_KEY, VpnStatus.getLastConnectedVPNProfile());

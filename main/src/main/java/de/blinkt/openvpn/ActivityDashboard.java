@@ -93,6 +93,9 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
     private static final String PREF_SORT_BY_LRU = "sortProfilesByLRU";
 
     public static int DISCONNECT_VPN_SERVERLIST = -1;
+    //1 - Server List activity disconnected
+    //2 - Log Window activity disconnected
+
 //    private String mLastStatusMessage;
     private  boolean dicojugar =true;
     public static IOpenVPNServiceInternal mService;
@@ -284,13 +287,20 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
             }
         });
 
+        findViewById(R.id.textview_checkip).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ActivityDashboard.this, ActivityContactUs.class);
+                startActivity(intent);
+            }
+        });
 
         // Set the adapter for the list view
          //   mDrawerList.setAdapter(new ArrayAdapter<String>(this,
          //           R.layout.drawer_list_item, mDrawerTitles));
         mDrawerTitles = new ArrayList<>();
-        mDrawerTitles.add(new NavDrawerItem(R.drawable.ic_action_menu, "Setting"));
-        mDrawerTitles.add(new NavDrawerItem(R.drawable.ic_action_menu, "Connection Status"));
+        mDrawerTitles.add(new NavDrawerItem(R.drawable.ic_action_menu, "Settings"));
+        mDrawerTitles.add(new NavDrawerItem(R.drawable.ic_action_menu, "Connection Log"));
         mDrawerTitles.add(new NavDrawerItem(R.drawable.ic_action_menu, "Purchase"));
         mDrawerTitles.add(new NavDrawerItem(R.drawable.ic_action_menu, "Log out"));
 
@@ -393,12 +403,16 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
         intent.setAction(OpenVPNService.START_SERVICE);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
-
         TextView locationServer = (TextView)findViewById(R.id.view_location);
         if (lolstring!= "" && myServer != null) {
             locationServer.setText(lolstring);
         }
         if (DISCONNECT_VPN_SERVERLIST == 1 && !VpnStatus.isVPNActive() ){
+            DISCONNECT_VPN_SERVERLIST = -1;
+            setStatus(Status.Disconnected);
+            onConnect( findViewById(R.id.button_dashboard_connect));
+        }
+        if( DISCONNECT_VPN_SERVERLIST == 2 && !VpnStatus.isVPNActive() ){
             DISCONNECT_VPN_SERVERLIST = -1;
             setStatus(Status.Disconnected);
         }
@@ -740,14 +754,14 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 
     public void onConnect(View v) {
         Log.d("ibVPN", "getCurrentServer:" + getCurrentServer());
-        
+
         if(!isInternetAvailable(this)) {
             Toast toast = Toast.makeText(this, "Network is unreachable.", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
         	toast.show();
             return;
         }
-        
+
         if(((Button)v).getText().toString().equalsIgnoreCase(getString(R.string.text_connect))) {
             setStatus(Status.Connecting);
             dicojugar=false;
@@ -818,7 +832,7 @@ public class ActivityDashboard extends BaseActivity  implements VpnStatus.StateL
 
             String dura = formatTime(System.currentTimeMillis() - m_date);
             Log.d("ibVPN", "Session Duration: " + dura);
-            
+
             JSONObject props = new JSONObject();
             mixpanelAdd(props, "Session Duration", dura);
             //mixpanelTrack("Disconnect", props);

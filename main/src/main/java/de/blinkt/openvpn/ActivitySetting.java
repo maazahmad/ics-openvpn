@@ -61,7 +61,14 @@ public class ActivitySetting extends BaseActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setTitle("");
         getSupportActionBar().setTitle("Settings");
-
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        myToolbar.setNavigationOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
 
         setupSpinnerProto();
         
@@ -105,17 +112,17 @@ public class ActivitySetting extends BaseActivity {
         class ProtoSelectedListener implements OnItemSelectedListener {
             public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 Log.d("ibVPN", "Protocol Selected:" + String.valueOf(arg2));
-                switch (arg2){
+                /*switch (arg2){
 
                     case 0 :{
-                        editPort.setText("1196");
+                        editPort.setText("1197");
                         break;
                     }
                     case  1:{
                         editPort.setText("1197");
                         break;
                     }
-                }
+                }*/
 
             }
             public void onNothingSelected(AdapterView<?> arg0) {
@@ -124,6 +131,7 @@ public class ActivitySetting extends BaseActivity {
         adapterProto.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);  
         spinProto.setAdapter(adapterProto);  
         spinProto.setOnItemSelectedListener(new ProtoSelectedListener());
+        spinProto.setSelection(1);
     }
     
     public void onSave(View v) {
